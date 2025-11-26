@@ -16,11 +16,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from typing import Dict, List, Tuple, Optional, Union, Any
 
-# Try relative import first, fall back to absolute import
-try:
-    from .export_journal_style import apply_journal_style
-except ImportError:
-    from export_journal_style import apply_journal_style
+
 
 
 class XRDMultilinePlotter:
@@ -41,10 +37,8 @@ class XRDMultilinePlotter:
     def plot_patterns(self, data_list: Union[np.ndarray, List[np.ndarray]],
                      labels: Optional[List[str]] = None,
                      y_shift: float = 1.0,
-                     peak_markers: Optional[List[float]] = None,
-                     impurity_markers: Optional[List[Tuple[float, float]]] = None,
-                     title: str = "",
-                     journal_style: bool = False) -> plt.Figure:
+                     markers: Optional[List[float]] = None
+                     ) -> plt.Figure:
         """
         General method to plot multiple XRD patterns.
 
@@ -52,10 +46,7 @@ class XRDMultilinePlotter:
             data_list (Union[np.ndarray, List[np.ndarray]]): Single numpy array or list of numpy arrays from XRDDataReader.
             labels (List[str]): List of labels for each pattern. If None, generic labels are used.
             y_shift (float): Absolute vertical offset between patterns (default: 1.0).
-            peak_markers (list): List of 2theta positions to mark (stars).
-            impurity_markers (list): List of (x, y_scale) tuples for impurity markers (triangles).
-            title (str): Plot title.
-            journal_style (bool): If True, apply journal-style formatting to the plot.
+            markers (list): List of 2theta positions to mark with triangular markers.
         """
         fig, ax = plt.subplots(figsize=(10, 8))
 
@@ -94,7 +85,7 @@ class XRDMultilinePlotter:
                    label=labels[i])
 
         # Plot Peak Markers (Stars)
-        if peak_markers and len(data_list) >= 1:
+        if markers and len(data_list) >= 1:
             # Use the first dataset for height reference
             data_item = data_list[0]
             
@@ -102,10 +93,10 @@ class XRDMultilinePlotter:
                 two_theta = data_item[:, 0]
                 intensity = data_item[:, 1]
                 
-                for pos in peak_markers:
+                for pos in markers:
                     idx = np.argmin(np.abs(two_theta - pos))
-                    peak_intensity = intensity[idx] + 0.2  # Markers on first pattern only
-                    ax.plot(two_theta[idx], peak_intensity, '*', color='black', markersize=8)
+                    peak_intensity = intensity[idx] * 1.5  # Markers on first pattern only
+                    ax.plot(two_theta[idx], peak_intensity, 'v', color='black', markersize=8)
 
         # Finalize Plot
         ax.set_xlabel('2θ (degree)')
@@ -113,17 +104,10 @@ class XRDMultilinePlotter:
         ax.set_yticks([])
         ax.grid(True, alpha=0.3)
 
-        if title:
-            ax.set_title(title)
-
         # Legend handling
         handles, labels_legend = ax.get_legend_handles_labels()
         by_label = dict(zip(labels_legend, handles))
         ax.legend(by_label.values(), by_label.keys())
-
-        # Apply journal style if requested
-        if journal_style:
-            apply_journal_style(fig, ax)
 
         return fig
 
@@ -179,7 +163,7 @@ def main():
             name_list.append(fname.replace('.txt', ''))
     
     if data_list:
-        fig1 = plotter.plot_patterns(data_list, labels=name_list, title="XRD Patterns", journal_style=True)
+        fig1 = plotter.plot_patterns(data_list, labels=name_list)
         export_journal_figure(fig1, output_dir / "example1_patterns", format='png', dpi=600)
         # plt.savefig(output_dir / "example1_patterns.png", dpi=300)
         print(f"Saved {output_dir / 'example1_patterns.tiff'} and .png")
@@ -191,13 +175,9 @@ def main():
         
         if sample_data is not None:
             peak_positions = [25.5, 32.1, 40.8, 46.2]  # Example 2theta positions
-            impurities = [(21.3, 0.85), (31.8, 1.0)]  # (2theta, y_scale) tuples
             fig2 = plotter.plot_patterns(
                 sample_data, 
-                peak_markers=peak_positions,
-                impurity_markers=impurities,
-                title="XRD Pattern with Markers",
-                journal_style=True
+                markers = peak_positions
             )
             export_journal_figure(fig2, output_dir / "example2_with_markers", format='png', dpi=600)
             # plt.savefig(output_dir / "example2_with_markers.png", dpi=300)
