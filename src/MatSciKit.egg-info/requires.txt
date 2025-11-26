@@ -1,0 +1,8 @@
+numpy
+pandas
+matplotlib
+scipy
+
+[dev]
+pytest
+pytest-cov
