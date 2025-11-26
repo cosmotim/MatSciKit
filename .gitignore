@@ -1,1 +1,11 @@
-.DS_Store
+# macOS system files
+*.DS_Store
+# Matlab reference files
+*.fig
+*.m
+# Python
+__pycache__/
+*.pyc
+
+# Data
+ExampleData/
