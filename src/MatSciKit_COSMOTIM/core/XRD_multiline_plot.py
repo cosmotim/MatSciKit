@@ -125,7 +125,7 @@ def main():
     if str(src_root) not in sys.path:
         sys.path.append(str(src_root))
     
-    from MatSciKit_COSMOTIM.io.xrd_reader import XRDDataReader
+    from MatSciKit_COSMOTIM.io.XRDDataReader import XRDDataReader
     from MatSciKit_COSMOTIM.visualization.export_journal_style import export_journal_figure
 
     # Try find this data file and other files in that folder ExampleData/XRD_data/Li_08.txt

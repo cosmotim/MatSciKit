@@ -11,7 +11,7 @@ This script demonstrates how to:
 import os
 from pathlib import Path
 
-from MatSciKit_COSMOTIM.io.xrd_reader import XRDDataReader
+from MatSciKit_COSMOTIM.io.XRDDataReader import XRDDataReader
 from MatSciKit_COSMOTIM.core.XRD_multiline_plot import XRDMultilinePlotter
 from MatSciKit_COSMOTIM.visualization.export_journal_style import export_journal_figure
 
