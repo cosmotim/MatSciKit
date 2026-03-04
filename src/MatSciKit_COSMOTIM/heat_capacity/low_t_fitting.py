@@ -21,7 +21,9 @@ def _linear(x: np.ndarray, a: float, b: float) -> np.ndarray:
 
 def fit(T: np.ndarray, Cp: np.ndarray, Cp_err: np.ndarray,
         n_density: float, density: float,
-        t_range: Optional[Tuple[float, float]] = None
+        t_range: Optional[Tuple[float, float]] = None,
+        n_points: Optional[int] = None,
+        t_start: Optional[float] = None
         ) -> Tuple[float, float, float, float]:
     """
     Extract Debye temperature and sound velocity from low-T Cp data.
@@ -32,6 +34,16 @@ def fit(T: np.ndarray, Cp: np.ndarray, Cp_err: np.ndarray,
         Cp/T = β·T² + γ
 
     where β = (12π⁴/5) · N_density · kb / (Density · θ_D³)
+
+    The fitting region can be specified in two ways:
+
+    - **Temperature range:** ``t_range=(T_min, T_max)`` selects all points
+      within that range.
+    - **Point count:** ``n_points=N`` uses the first N points (sorted by T).
+      Combine with ``t_start`` to skip initial data.
+
+    If both are given, ``t_range`` takes priority. If neither is given,
+    all data is used.
 
     Parameters
     ----------
@@ -47,8 +59,11 @@ def fit(T: np.ndarray, Cp: np.ndarray, Cp_err: np.ndarray,
         Mass density (kg/m³).
     t_range : tuple of (float, float), optional
         Temperature range (T_min, T_max) in Kelvin for the fitting region.
-        Only data points within this range are used for the fit.
-        If None, all provided data points are used.
+    n_points : int, optional
+        Number of data points to use (after sorting by T and applying t_start).
+    t_start : float, optional
+        Minimum temperature to start from (K). Points below this are skipped
+        before applying n_points. Default is None (start from lowest T).
 
     Returns
     -------
@@ -68,27 +83,50 @@ def fit(T: np.ndarray, Cp: np.ndarray, Cp_err: np.ndarray,
 
     Examples
     --------
-    >>> # Fit using data between 3 K and 10 K
+    >>> # Method 1: Fit using temperature range
     >>> theta_D, v_s, err_D, err_v = fit(T, Cp, Cp_err, n_density, density,
     ...                                   t_range=(3.0, 10.0))
+    >>> # Method 2: Use first 29 points starting from 3.3 K
+    >>> theta_D, v_s, err_D, err_v = fit(T, Cp, Cp_err, n_density, density,
+    ...                                   n_points=29, t_start=3.3)
     """
     T = np.asarray(T, dtype=float)
     Cp = np.asarray(Cp, dtype=float)
     Cp_err = np.asarray(Cp_err, dtype=float)
 
-    # Filter to temperature range if specified
+    # Sort by temperature
+    sort_idx = np.argsort(T)
+    T = T[sort_idx]
+    Cp = Cp[sort_idx]
+    Cp_err = Cp_err[sort_idx]
+
+    # Select fitting region
     if t_range is not None:
+        # Method 1: Temperature range
         t_min, t_max = t_range
         mask = (T >= t_min) & (T <= t_max)
         T = T[mask]
         Cp = Cp[mask]
         Cp_err = Cp_err[mask]
+    else:
+        # Apply t_start filter first
+        if t_start is not None:
+            mask = T >= t_start
+            T = T[mask]
+            Cp = Cp[mask]
+            Cp_err = Cp_err[mask]
 
-        if len(T) < 3:
-            raise ValueError(
-                f"Fewer than 3 data points in t_range=({t_min}, {t_max}) K. "
-                f"Need at least 3 for a meaningful linear fit."
-            )
+        # Method 2: First n_points
+        if n_points is not None:
+            T = T[:n_points]
+            Cp = Cp[:n_points]
+            Cp_err = Cp_err[:n_points]
+
+    if len(T) < 3:
+        raise ValueError(
+            f"Fewer than 3 data points in the selected range. "
+            f"Need at least 3 for a meaningful linear fit. Got {len(T)}."
+        )
 
     # Prepare data: Cp/T vs T²
     x = T**2
