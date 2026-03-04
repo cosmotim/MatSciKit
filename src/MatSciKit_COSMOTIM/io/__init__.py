@@ -1,9 +1,14 @@
 """
-I/O module for reading various data formats.
+Instrument-specific data readers.
+
+Modules
+-------
+ppms_tto : PPMS Thermal Transport Option reader
+ppms_hc : PPMS Heat Capacity reader
+dsc : Differential Scanning Calorimetry reader
+lfa : Laser Flash Analysis reader
 """
 
-from .XRDDataReader import XRDDataReader
-from .xrdml_reader import XRDMLReader, read_xrdml
-from .ppmsTTOReader import ttodataplot
+from . import ppms_tto, ppms_hc, dsc, lfa
 
-__all__ = ['XRDDataReader', 'XRDMLReader', 'read_xrdml', 'ttodataplot']
+__all__ = ['ppms_tto', 'ppms_hc', 'dsc', 'lfa']
