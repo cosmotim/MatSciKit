@@ -131,13 +131,15 @@ class TestLowTFitting:
         idx = np.argsort(hc_data[:, 0])
         hc_data = hc_data[idx]
 
-        # Take points 13-41 (MATLAB 1-indexed) → 12:41 (Python 0-indexed)
-        T = hc_data[12:41, 0]
-        Cp = hc_data[12:41, 1]
-        Cp_err = hc_data[12:41, 2]
+        # Use t_range to select the low-T fitting region
+        # MATLAB used indices 13-41 which corresponded to ~3-10 K
+        T = hc_data[:, 0]
+        Cp = hc_data[:, 1]
+        Cp_err = hc_data[:, 2]
 
         theta_D, v_s, theta_D_err, v_s_err = low_t_fitting.fit(
-            T, Cp, Cp_err, N_DENSITY, DENSITY
+            T, Cp, Cp_err, N_DENSITY, DENSITY,
+            t_range=(3.0, 10.0)
         )
 
         # Debye temperature should be in a physically reasonable range

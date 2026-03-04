@@ -9,7 +9,7 @@ Translated from LowT_Cp_fitting.m
 
 import numpy as np
 from scipy.optimize import curve_fit
-from typing import Tuple
+from typing import Optional, Tuple
 
 from MatSciKit_COSMOTIM.constants import kb, h, hbar
 
@@ -20,7 +20,8 @@ def _linear(x: np.ndarray, a: float, b: float) -> np.ndarray:
 
 
 def fit(T: np.ndarray, Cp: np.ndarray, Cp_err: np.ndarray,
-        n_density: float, density: float
+        n_density: float, density: float,
+        t_range: Optional[Tuple[float, float]] = None
         ) -> Tuple[float, float, float, float]:
     """
     Extract Debye temperature and sound velocity from low-T Cp data.
@@ -44,6 +45,10 @@ def fit(T: np.ndarray, Cp: np.ndarray, Cp_err: np.ndarray,
         Number density N/V (atoms/m³).
     density : float
         Mass density (kg/m³).
+    t_range : tuple of (float, float), optional
+        Temperature range (T_min, T_max) in Kelvin for the fitting region.
+        Only data points within this range are used for the fit.
+        If None, all provided data points are used.
 
     Returns
     -------
@@ -60,10 +65,30 @@ def fit(T: np.ndarray, Cp: np.ndarray, Cp_err: np.ndarray,
     -----
     The fit is weighted by (Cp_err/Cp)^(-2), matching the MATLAB implementation
     which uses relative errors as weights for the ``poly1`` fit.
+
+    Examples
+    --------
+    >>> # Fit using data between 3 K and 10 K
+    >>> theta_D, v_s, err_D, err_v = fit(T, Cp, Cp_err, n_density, density,
+    ...                                   t_range=(3.0, 10.0))
     """
     T = np.asarray(T, dtype=float)
     Cp = np.asarray(Cp, dtype=float)
     Cp_err = np.asarray(Cp_err, dtype=float)
+
+    # Filter to temperature range if specified
+    if t_range is not None:
+        t_min, t_max = t_range
+        mask = (T >= t_min) & (T <= t_max)
+        T = T[mask]
+        Cp = Cp[mask]
+        Cp_err = Cp_err[mask]
+
+        if len(T) < 3:
+            raise ValueError(
+                f"Fewer than 3 data points in t_range=({t_min}, {t_max}) K. "
+                f"Need at least 3 for a meaningful linear fit."
+            )
 
     # Prepare data: Cp/T vs T²
     x = T**2
