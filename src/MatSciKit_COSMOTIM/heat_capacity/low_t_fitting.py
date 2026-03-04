@@ -22,8 +22,7 @@ def _linear(x: np.ndarray, a: float, b: float) -> np.ndarray:
 def fit(T: np.ndarray, Cp: np.ndarray, Cp_err: np.ndarray,
         n_density: float, density: float,
         t_range: Optional[Tuple[float, float]] = None,
-        n_points: Optional[int] = None,
-        t_start: Optional[float] = None
+        n_range: Optional[Tuple[int, int]] = None
         ) -> Tuple[float, float, float, float]:
     """
     Extract Debye temperature and sound velocity from low-T Cp data.
@@ -39,8 +38,9 @@ def fit(T: np.ndarray, Cp: np.ndarray, Cp_err: np.ndarray,
 
     - **Temperature range:** ``t_range=(T_min, T_max)`` selects all points
       within that range.
-    - **Point count:** ``n_points=N`` uses the first N points (sorted by T).
-      Combine with ``t_start`` to skip initial data.
+    - **Index range:** ``n_range=(n_start, n_end)`` uses data points at
+      indices n_start through n_end (1-based, inclusive) after sorting by T.
+      This matches the MATLAB convention ``data(n_start:n_end, :)``.
 
     If both are given, ``t_range`` takes priority. If neither is given,
     all data is used.
@@ -59,11 +59,11 @@ def fit(T: np.ndarray, Cp: np.ndarray, Cp_err: np.ndarray,
         Mass density (kg/m³).
     t_range : tuple of (float, float), optional
         Temperature range (T_min, T_max) in Kelvin for the fitting region.
-    n_points : int, optional
-        Number of data points to use (after sorting by T and applying t_start).
-    t_start : float, optional
-        Minimum temperature to start from (K). Points below this are skipped
-        before applying n_points. Default is None (start from lowest T).
+    n_range : tuple of (int, int), optional
+        Index range (n_start, n_end) using 1-based inclusive indexing,
+        applied after sorting by temperature. Matches MATLAB convention
+        ``data(n_start:n_end, :)``. For example, ``n_range=(13, 41)``
+        selects the 13th through 41st data points.
 
     Returns
     -------
@@ -86,9 +86,9 @@ def fit(T: np.ndarray, Cp: np.ndarray, Cp_err: np.ndarray,
     >>> # Method 1: Fit using temperature range
     >>> theta_D, v_s, err_D, err_v = fit(T, Cp, Cp_err, n_density, density,
     ...                                   t_range=(3.0, 10.0))
-    >>> # Method 2: Use first 29 points starting from 3.3 K
+    >>> # Method 2: Use data points 13 through 41 (1-based, like MATLAB)
     >>> theta_D, v_s, err_D, err_v = fit(T, Cp, Cp_err, n_density, density,
-    ...                                   n_points=29, t_start=3.3)
+    ...                                   n_range=(13, 41))
     """
     T = np.asarray(T, dtype=float)
     Cp = np.asarray(Cp, dtype=float)
@@ -108,19 +108,13 @@ def fit(T: np.ndarray, Cp: np.ndarray, Cp_err: np.ndarray,
         T = T[mask]
         Cp = Cp[mask]
         Cp_err = Cp_err[mask]
-    else:
-        # Apply t_start filter first
-        if t_start is not None:
-            mask = T >= t_start
-            T = T[mask]
-            Cp = Cp[mask]
-            Cp_err = Cp_err[mask]
-
-        # Method 2: First n_points
-        if n_points is not None:
-            T = T[:n_points]
-            Cp = Cp[:n_points]
-            Cp_err = Cp_err[:n_points]
+    elif n_range is not None:
+        # Method 2: Index range (1-based inclusive, like MATLAB)
+        n_start, n_end = n_range
+        # Convert 1-based inclusive to 0-based Python slice
+        T = T[n_start - 1:n_end]
+        Cp = Cp[n_start - 1:n_end]
+        Cp_err = Cp_err[n_start - 1:n_end]
 
     if len(T) < 3:
         raise ValueError(
