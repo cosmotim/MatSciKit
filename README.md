@@ -216,19 +216,14 @@ If you use MatSciKit in your research, please cite:
 The methods implemented in this package are based on the following work:
 
 ```bibtex
-@article{6wj2-kzhh,
-  title = {Origin of Intrinsically Low Thermal Conductivity in a Garnet-Type Solid Electrolyte: Linking Lattice and Ionic Dynamics with Thermal Transport},
+@article{wang2025thermal,
+  title = {Origin of Intrinsically Low Thermal Conductivity in a Garnet-Type Solid Electrolyte},
   author = {Wang, Yitian and Su, Yaokun and Carrete, Jes\'us and Zhang, Huanyu and Wu, Nan and Li, Yutao and Li, Hongze and He, Jiaming and Xu, Youming and Guo, Shucheng and Cai, Qingan and Abernathy, Douglas L. and Williams, Travis and Kravchyk, Kostiantyn V. and Kovalenko, Maksym V. and Madsen, Georg K.H. and Li, Chen and Chen, Xi},
   journal = {PRX Energy},
   volume = {4},
-  issue = {3},
   pages = {033004},
-  numpages = {13},
   year = {2025},
-  month = {Jul},
-  publisher = {American Physical Society},
-  doi = {10.1103/6wj2-kzhh},
-  url = {https://link.aps.org/doi/10.1103/6wj2-kzhh}
+  doi = {10.1103/6wj2-kzhh}
 }
 ```
 
