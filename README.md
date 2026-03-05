@@ -204,12 +204,31 @@ python -m pytest tests/test_pipeline2.py -v
 
 If you use MatSciKit in your research, please cite:
 
-```
+```bibtex
 @software{matscikit,
   author = {Wang, Yitian},
   title = {MatSciKit: Python Toolkit for Materials Science Research},
   url = {https://github.com/cosmotim/MatSciKit},
   year = {2026}
+}
+```
+
+The methods implemented in this package are based on the following work:
+
+```bibtex
+@article{6wj2-kzhh,
+  title = {Origin of Intrinsically Low Thermal Conductivity in a Garnet-Type Solid Electrolyte: Linking Lattice and Ionic Dynamics with Thermal Transport},
+  author = {Wang, Yitian and Su, Yaokun and Carrete, Jes\'us and Zhang, Huanyu and Wu, Nan and Li, Yutao and Li, Hongze and He, Jiaming and Xu, Youming and Guo, Shucheng and Cai, Qingan and Abernathy, Douglas L. and Williams, Travis and Kravchyk, Kostiantyn V. and Kovalenko, Maksym V. and Madsen, Georg K.H. and Li, Chen and Chen, Xi},
+  journal = {PRX Energy},
+  volume = {4},
+  issue = {3},
+  pages = {033004},
+  numpages = {13},
+  year = {2025},
+  month = {Jul},
+  publisher = {American Physical Society},
+  doi = {10.1103/6wj2-kzhh},
+  url = {https://link.aps.org/doi/10.1103/6wj2-kzhh}
 }
 ```
 

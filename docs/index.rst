@@ -40,6 +40,27 @@ from raw instrument data to publication-ready results.
    design
    changelog
 
+Citation
+========
+
+If you use MatSciKit in your research, please cite:
+
+.. code-block:: bibtex
+
+   @software{matscikit,
+     author = {Wang, Yitian},
+     title = {MatSciKit: Python Toolkit for Materials Science Research},
+     url = {https://github.com/cosmotim/MatSciKit},
+     year = {2026}
+   }
+
+The methods implemented in this package are based on:
+
+   Y. Wang *et al.*, "Origin of Intrinsically Low Thermal Conductivity in a
+   Garnet-Type Solid Electrolyte: Linking Lattice and Ionic Dynamics with
+   Thermal Transport," *PRX Energy* **4**, 033004 (2025).
+   `DOI: 10.1103/6wj2-kzhh <https://link.aps.org/doi/10.1103/6wj2-kzhh>`_
+
 Indices and tables
 ==================
 
