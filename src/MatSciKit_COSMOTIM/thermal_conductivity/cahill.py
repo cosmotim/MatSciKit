@@ -18,6 +18,9 @@ def _integrand(x: float) -> float:
     """Debye integrand: x³·eˣ / (eˣ - 1)²."""
     if x <= 0:
         return 0.0
+    if x > 500:
+        # For very large x, eˣ dominates: x³·eˣ/(eˣ)² = x³·e⁻ˣ → 0
+        return 0.0
     ex = np.exp(x)
     return x**3 * ex / (ex - 1)**2
 

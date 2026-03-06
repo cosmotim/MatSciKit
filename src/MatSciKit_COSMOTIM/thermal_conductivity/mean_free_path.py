@@ -18,6 +18,8 @@ def _integrand(x: float) -> float:
     """Debye integrand for MFP: x⁴·eˣ / (eˣ - 1)²."""
     if x <= 0:
         return 0.0
+    if x > 500:
+        return 0.0
     ex = np.exp(x)
     return x**4 * ex / (ex - 1)**2
 

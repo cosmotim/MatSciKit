@@ -1,0 +1,8 @@
+Material,Formula,Category,v_avg(m/s),density(kg/m3),theta_D(K),kappa_min(W/mK)
+LAGP,Li1.5Al0.5Ge1.5(PO4)3,oxides,2430,3090,314.8,0.7341
+NZP,NaZr2(PO4)3,oxides,2900,3800,378.1,0.8701
+LLZTO,Li6.5La3Zr1.5Ta0.5O12,oxides,2550,5100,329.7,0.7640
+LGPS,Li10GeP2S12,sulfides,2000,2900,250.2,0.5726
+LPSCl,Li6PS5Cl,sulfides,2200,2400,270.0,0.6033
+Na3PS4,Na3PS4,sulfides,1900,2500,212.2,0.4371
+Li3InCl6,Li3InCl6,halides,1800,2700,193.0,0.3829
