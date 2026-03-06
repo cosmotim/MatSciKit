@@ -14,3 +14,9 @@ h = 6.62607015e-34
 
 # Reduced Planck constant (J·s)
 hbar = h / (2 * np.pi)
+
+# Avogadro constant (mol⁻¹)
+NA = 6.02214076e23
+
+# Atomic mass unit (kg)
+AMU_TO_KG = 1.66053906660e-27

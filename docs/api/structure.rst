@@ -4,6 +4,12 @@ Structure
 .. automodule:: MatSciKit_COSMOTIM.structure
    :members:
 
+cif_reader
+----------
+
+.. automodule:: MatSciKit_COSMOTIM.structure.cif_reader
+   :members:
+
 xrd_reader
 ----------
 
