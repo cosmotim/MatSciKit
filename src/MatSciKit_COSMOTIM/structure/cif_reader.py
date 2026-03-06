@@ -240,7 +240,11 @@ def read(path: Union[str, Path], use_pymatgen: Optional[bool] = None) -> Dict:
 
     if should_use_pmg and _PYMATGEN_AVAILABLE:
         parser = _PmgCifParser(str(path))
-        structure = parser.get_structures()[0]
+        # Use parse_structures (new API) if available, else get_structures
+        if hasattr(parser, 'parse_structures'):
+            structure = parser.parse_structures(primitive=True)[0]
+        else:
+            structure = parser.get_structures()[0]
         lattice = structure.lattice
 
         result['unit_cell'] = {

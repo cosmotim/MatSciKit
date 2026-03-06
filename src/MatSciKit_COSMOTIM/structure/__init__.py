@@ -10,6 +10,6 @@ xrd_plot : XRD multi-pattern plotter
 """
 
 from . import cif_reader, material
-from .material import Material, load_database, batch_cahill
+from .material import Material, load_database, batch_cahill, fetch_mp
 
-__all__ = ['cif_reader', 'material', 'Material', 'load_database', 'batch_cahill']
+__all__ = ['cif_reader', 'material', 'Material', 'load_database', 'batch_cahill', 'fetch_mp']
