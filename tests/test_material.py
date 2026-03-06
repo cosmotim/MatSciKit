@@ -60,15 +60,18 @@ class TestMaterial:
         expected = (1.0/3 * (1/5000**3 + 2/3000**3)) ** (-1.0/3)
         assert mat.v_avg == pytest.approx(expected, rel=1e-6)
 
-    def test_v_avg_snyder_acoustic(self):
-        """MP's snyder_acoustic takes priority."""
+    def test_v_avg_debye_over_snyder(self):
+        """Debye average from v_L/v_T takes priority over snyder."""
         mat = Material(
             name='test', formula='test',
             density=5000, n_density=8e28,
             sound_velocity={'longitudinal': 5000, 'transverse': 3000,
-                            'snyder_acoustic': 4200},
+                            'snyder_acoustic': 178},
         )
-        assert mat.v_avg == 4200
+        # Should compute Debye average, not use snyder
+        expected = (1.0/3 * (1/5000**3 + 2/3000**3)) ** (-1.0/3)
+        assert mat.v_avg == pytest.approx(expected, rel=1e-6)
+        assert mat.v_avg > 3000  # Not 178 (snyder)
 
     def test_theta_D_auto_estimate(self):
         mat = Material(
@@ -222,7 +225,9 @@ class TestMPIntegration:
         assert mat.material_id == 'mp-5827'
         assert mat.formula == 'SrTiO3'
         assert mat.density == pytest.approx(5117, rel=0.01)  # converted to kg/m³
-        assert mat.v_avg == 5100.0  # snyder_acoustic
+        # v_avg = Debye average from v_L/v_T, not snyder_acoustic
+        expected_v_avg = (1.0/3 * (1/7800**3 + 2/4500**3)) ** (-1.0/3)
+        assert mat.v_avg == pytest.approx(expected_v_avg, rel=1e-6)
         assert mat.v_L == 7800.0
         assert mat.v_T == 4500.0
         assert mat.K_vrh == 175.0

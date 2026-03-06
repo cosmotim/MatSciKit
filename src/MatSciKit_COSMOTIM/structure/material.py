@@ -156,23 +156,26 @@ class Material:
 
     @property
     def v_avg(self) -> Optional[float]:
-        """Average sound velocity (m/s).
+        """Average (Debye) sound velocity (m/s).
 
-        Uses ``snyder_acoustic`` if available (MP convention),
-        otherwise falls back to computing from transverse/longitudinal.
+        Priority:
+        1. Explicit ``'average'`` key (from local database)
+        2. Debye average computed from v_L and v_T:
+           v_avg = [1/3 (1/v_L³ + 2/v_T³)]^(-1/3)
+        3. ``'snyder_total'`` as fallback
+
+        Note: MP's ``snyder_acoustic`` is the Snyder model velocity
+        for thermoelectric κ_L, NOT the Debye average. We compute
+        the Debye average from v_L/v_T instead.
         """
         if self.sound_velocity is None:
             return None
 
-        # MP's snyder_acoustic is the Debye average velocity
-        if 'snyder_acoustic' in self.sound_velocity and self.sound_velocity['snyder_acoustic']:
-            return self.sound_velocity['snyder_acoustic']
-
-        # Average from database format
+        # Explicit average from our database format
         if 'average' in self.sound_velocity and self.sound_velocity['average']:
             return self.sound_velocity['average']
 
-        # Compute Debye average from v_L and v_T
+        # Compute Debye average from v_L and v_T (standard for Cahill model)
         v_L = self.sound_velocity.get('longitudinal')
         v_T = self.sound_velocity.get('transverse')
         if v_L and v_T:
@@ -326,7 +329,7 @@ class Material:
             sound_velocity=sound_velocity,
             bulk_modulus=bulk_modulus,
             shear_modulus=shear_modulus,
-            young_modulus=getattr(mp_doc, 'young_modulus', None),
+            young_modulus=getattr(mp_doc, 'youngs_modulus', None) or getattr(mp_doc, 'young_modulus', None),
             homogeneous_poisson=getattr(mp_doc, 'homogeneous_poisson', None),
             universal_anisotropy=getattr(mp_doc, 'universal_anisotropy', None),
             debye_temperature=getattr(mp_doc, 'debye_temperature', None),
@@ -589,7 +592,7 @@ def fetch_mp(material_ids: List[str],
                 "material_id", "formula_pretty", "density",
                 "density_atomic", "volume", "nsites", "elements",
                 "sound_velocity", "bulk_modulus", "shear_modulus",
-                "young_modulus", "homogeneous_poisson",
+                "youngs_modulus", "homogeneous_poisson",
                 "universal_anisotropy", "debye_temperature",
                 "thermal_conductivity", "symmetry",
             ],
