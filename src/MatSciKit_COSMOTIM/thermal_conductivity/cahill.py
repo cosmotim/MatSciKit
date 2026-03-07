@@ -93,3 +93,58 @@ def minimum_tc(T: Union[float, np.ndarray],
     if kappa_min.size == 1:
         return float(kappa_min[0])
     return kappa_min
+
+
+def minimum_tc_high_T(n_density: float,
+                      v_L: float,
+                      v_T: float) -> float:
+    """
+    Cahill minimum thermal conductivity in the high-temperature limit.
+
+    Uses the simplified Cheng et al. formula valid when T >> θ_D,
+    where the Debye integrals saturate to their classical limit.
+
+    Parameters
+    ----------
+    n_density : float
+        Number density N/V (atoms/m³).
+    v_L : float
+        Longitudinal sound velocity (m/s).
+    v_T : float
+        Transverse sound velocity (m/s).
+
+    Returns
+    -------
+    kappa_min : float
+        High-temperature minimum thermal conductivity (W/(m·K)).
+
+    Notes
+    -----
+    Formula:
+
+    .. math::
+
+        \\kappa_{\\min} = \\left(\\frac{\\pi}{48}\\right)^{1/3}
+        k_B \\, n^{2/3} (v_L + 2v_T)
+
+    The coefficient (π/48)^(1/3) relates to the full formula as:
+
+    .. math::
+
+        \\left(\\frac{\\pi}{48}\\right)^{1/3} =
+        \\left(\\frac{\\pi}{6}\\right)^{1/3} \\times \\frac{1}{2}
+
+    The factor of 1/2 arises from the high-T limit of the Debye integral:
+    as T → ∞, ∫₀^(θ/T) x³eˣ/(eˣ-1)² dx → (θ/T)²/2, which cancels the
+    (T/θ)² prefactor and leaves a factor of 1/2.
+
+    This is the formula used in Cheng et al., Small 17, 2101693 (2021).
+    It treats the three acoustic branches separately (1 longitudinal +
+    2 transverse) rather than using a single average velocity.
+
+    References
+    ----------
+    Cahill, D. G., Watson, S. K., & Pohl, R. O., Phys. Rev. B 46, 6131 (1992).
+    Cheng, Z. et al., Small 17, 2101693 (2021).
+    """
+    return (np.pi / 48) ** (1.0 / 3) * kb * n_density ** (2.0 / 3) * (v_L + 2 * v_T)
