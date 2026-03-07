@@ -4,6 +4,9 @@
 
 Recreates Figure 6 from Cheng et al., Small 17, 2101693 (2021),
 extended with additional oxide/sulfide/halide solid electrolyte data.
+
+κ_measured values are from the authoritative paper table (ver7_AIP_APR.tex)
+to ensure figure-table consistency for peer review.
 """
 
 import sys
@@ -21,19 +24,8 @@ from scipy import stats
 from MatSciKit_COSMOTIM.thermal_conductivity import cahill
 from MatSciKit_COSMOTIM.structure.material import estimate_debye_temperature, estimate_n_density
 
-DATA = Path("/Users/cosmotim/Documents/SE thermal review")
-EXPORT = DATA / "TC of SE/TTO Plot/Export_Data"
-CHENG = DATA / "Data"
 
-
-def interp_300K(T, kappa):
-    """Interpolate κ at 300 K."""
-    idx = np.argsort(T)
-    T, kappa = T[idx], kappa[idx]
-    return float(np.interp(300, T, kappa))
-
-
-def kmin_300K(density, avg_mass, v_avg, theta_D=None, V=None, N=None, M_amu=None):
+def kmin_300K(density, avg_mass, v_avg, theta_D=None, V=None, N=None):
     """Compute Cahill κ_min at 300 K."""
     if V is not None:
         n = N / V
@@ -44,149 +36,105 @@ def kmin_300K(density, avg_mass, v_avg, theta_D=None, V=None, N=None, M_amu=None
     return cahill.minimum_tc(300.0, n, theta, v_avg)
 
 
-def load_kappa_300(filepath, col_T=0, col_k=1):
-    """Load CSV and interpolate at 300 K."""
-    data = np.loadtxt(str(filepath), delimiter=',')
-    return interp_300K(data[:, col_T], data[:, col_k])
-
-
 # ═══════════════════════════════════════════════════════════════════════
-# Material database: name, category, source, κ_measured(300K), κ_min params
+# Material database — authoritative κ_measured values from paper table
+# (ver7_AIP_APR.tex, Table I)
 # ═══════════════════════════════════════════════════════════════════════
 
 materials = []
 
-def add(name, cat, source, kappa_meas, density, avg_mass, v_avg, theta_D=None, **kw):
+def add(name, cat, kappa_meas, ref, density, avg_mass, v_avg,
+        theta_D=None, **kw):
     km = kmin_300K(density, avg_mass, v_avg, theta_D, **kw)
-    materials.append({'name': name, 'category': cat, 'source': source,
-                      'kappa_meas': kappa_meas, 'kappa_min': km})
+    materials.append({
+        'name': name, 'category': cat, 'kappa_meas': kappa_meas,
+        'kappa_min': km, 'ref': ref,
+    })
 
 
-# ─── Our data (PPMS/LFA) ───────────────────────────────────────────────
+# ─── Oxides ─────────────────────────────────────────────────────────────
 
-# LSHT (from Pipeline 1 fit)
+# LAGP — Rohde 2020
+add('LAGP', 'oxide', 1.4, 'Rohde 2020',
+    density=3090, avg_mass=28.95, v_avg=2430)
+
+# NZP — Böger 2023
+add('NZP', 'oxide', 1.13, 'Böger 2023',
+    density=3800, avg_mass=24.46, v_avg=2900)
+
+# NZSP — Wang 2025
+add('NZSP', 'oxide', 1.0, 'Wang 2025',
+    density=3400, avg_mass=28.0, v_avg=2700)
+
+# NZS — Böger 2023
+add('NZS', 'oxide', 1.0, 'Böger 2023',
+    density=3300, avg_mass=26.0, v_avg=2600)
+
+# LLZTO — Wang 2025 (SC, intrinsic)
+add('LLZTO', 'oxide', 1.6, 'Wang 2025',
+    density=5100, avg_mass=37.87, v_avg=2550)
+
+# LSHT — Wang 2025 (our PRX Energy paper)
 V_lsht = 3.98e-10 ** 3
 N_lsht = 3/8 + 7/16 + 1/4 + 3/4 + 3
-M_lsht = 6.941*3/8 + 87.62*7/16 + 178.49*1/4 + 180.95*3/4 + 15.999*3
-add('LSHT', 'oxide', 'This work',
-    load_kappa_300(EXPORT / 'LSHT_LFA.csv'),
-    None, None, 3461.3, 437.14, V=V_lsht, N=N_lsht)
+add('LSHT', 'oxide', 1.7, 'Wang 2025',
+    density=None, avg_mass=None, v_avg=3461.3, theta_D=437.14,
+    V=V_lsht, N=N_lsht)
 
-# LAGP (our LFA)
-add('LAGP', 'oxide', 'This work',
-    load_kappa_300(EXPORT / 'LAGP_LFA.csv'),
-    3090, 28.95, 2430)
+# ─── Sulfides ───────────────────────────────────────────────────────────
 
-# NZP (our LFA)
-add('NZP', 'oxide', 'This work',
-    load_kappa_300(EXPORT / 'NZP_LFA.csv'),
-    3800, 24.46, 2900)
+# LGPS — Böger 2023
+add('LGPS', 'sulfide', 0.8, 'Böger 2023',
+    density=2900, avg_mass=24.32, v_avg=2000)
 
-# LLZTO poly (our LFA)
-add('LLZTO (poly)', 'oxide', 'This work',
-    load_kappa_300(EXPORT / 'LLZTO poly_LFA.csv'),
-    5100, 37.87, 2550)
+# Li₁₀SnP₂S₁₂ — Bron 2013
+add('LSPS', 'sulfide', 0.7, 'Bron 2013',
+    density=2700, avg_mass=25.0, v_avg=1900)
 
-# LLZTO SC (our LFA)
-add('LLZTO (SC)', 'oxide', 'This work',
-    load_kappa_300(EXPORT / 'LLZTO SC_LFA.csv'),
-    5100, 37.87, 2550)
+# LPSCl — Böger 2023
+add('LPSCl', 'sulfide', 0.6, 'Böger 2023',
+    density=2400, avg_mass=26.05, v_avg=2200)
 
-# ─── Cheng et al. (TDTR) ───────────────────────────────────────────────
+# 3(Li₂S)-P₂S₅ — Cheng 2021
+add('LPS', 'sulfide', 0.6, 'Cheng 2021',
+    density=1900, avg_mass=20.0, v_avg=2000)
 
-add('LAGP*', 'oxide', 'Cheng 2021',
-    load_kappa_300(CHENG / 'LAGP_Cheng.csv'),
-    3090, 28.95, 2430)
+# Na₃PS₄ — Cheng/Bernges
+add('Na₃PS₄', 'sulfide', 0.5, 'Cheng/Bernges',
+    density=2500, avg_mass=28.78, v_avg=1900)
 
-add('LLZTO*', 'oxide', 'Cheng 2021',
-    load_kappa_300(CHENG / 'LLZTO_ZheCheng.csv'),
-    5100, 37.87, 2550)
+# NaSbS₂ — Gunatilleke 2023
+add('NaSbS₂', 'sulfide', 0.6, 'Gunatilleke 2023',
+    density=4200, avg_mass=38.43, v_avg=1500)
 
-add('LPSC', 'sulfide', 'Cheng 2021',
-    load_kappa_300(CHENG / 'LPSC_ZheCheng.csv'),
-    2400, 26.05, 2200)
+# ─── Halides ────────────────────────────────────────────────────────────
 
-add('LPS', 'sulfide', 'Cheng 2021',
-    load_kappa_300(CHENG / 'LPS_ZheCheng.csv'),
-    1900, 20.0, 2000)
+# Li₃InCl₆ — Cheng 2021
+add('Li₃InCl₆', 'halide', 0.63, 'Cheng 2021',
+    density=2700, avg_mass=33.62, v_avg=1800)
 
-add('NPS*', 'sulfide', 'Cheng 2021',
-    load_kappa_300(CHENG / 'NPS_ZheCheng.csv'),
-    2500, 28.78, 1900)
-
-add('LIC', 'halide', 'Cheng 2021',
-    load_kappa_300(CHENG / 'LIC.csv'),
-    2700, 33.62, 1800)
-
-add('LYC', 'halide', 'Cheng 2021',
-    load_kappa_300(CHENG / 'LYC.csv'),
-    2600, 32.26, 1800)
-
-# ─── Other literature data ─────────────────────────────────────────────
-
-# LGPS
-add('LGPS', 'sulfide', 'Literature',
-    load_kappa_300(CHENG / 'LGPS.csv'),
-    2900, 24.32, 2000)
-
-# LPSC (our PPMS)
-add('LPSC (PPMS)', 'sulfide', 'Literature',
-    load_kappa_300(CHENG / 'LPSC.csv'),
-    2400, 26.05, 2200)
-
-# NPS (Bernges)
-add('NPS (Bernges)', 'sulfide', 'Literature',
-    load_kappa_300(CHENG / 'NPS_Bernges.csv'),
-    2500, 28.78, 1900)
-
-# NZSP
-add('NZSP', 'oxide', 'Literature',
-    load_kappa_300(CHENG / 'NZSP.csv'),
-    3400, 28.0, 2700)
-
-# NATP (NaTi₂(PO₄)₃)
-add('NATP', 'oxide', 'Literature',
-    load_kappa_300(CHENG / 'NATP.csv'),
-    3200, 24.0, 2800)
-
-# Li₂TiO₃
-add('Li₂TiO₃', 'oxide', 'Literature',
-    load_kappa_300(CHENG / 'Li2TiO3.csv'),
-    3430, 16.35, 4000)
-
-# NaSbS₂
-add('NaSbS₂', 'sulfide', 'Literature',
-    load_kappa_300(CHENG / 'NaSbS2.csv'),
-    4200, 38.43, 1500)
-
-# NZP (Boger)
-add('NZP (Böger)', 'oxide', 'Literature',
-    load_kappa_300(CHENG / 'NZP_Boger.csv'),
-    3800, 24.46, 2900)
-
-# NZS (Boger) — Na₄Zr₂(SiO₄)₃
-add('NZS', 'oxide', 'Literature',
-    load_kappa_300(CHENG / 'NZS_Boger.csv'),
-    3300, 26.0, 2600)
+# Li₃YCl₆ — Cheng 2021
+add('Li₃YCl₆', 'halide', 0.55, 'Cheng 2021',
+    density=2600, avg_mass=32.26, v_avg=1800)
 
 
 # ═══════════════════════════════════════════════════════════════════════
 # Print results table
 # ═══════════════════════════════════════════════════════════════════════
 
-print(f"\n{'Material':20s} {'Category':10s} {'Source':15s} {'κ_min':>8s} {'κ_meas':>8s} {'Ratio':>6s}")
+print(f"\n{'Material':15s} {'Category':10s} {'Reference':20s} {'κ_min':>8s} {'κ_meas':>8s} {'Ratio':>6s}")
 print('-' * 72)
 for m in sorted(materials, key=lambda x: x['kappa_meas']/x['kappa_min']):
     ratio = m['kappa_meas'] / m['kappa_min']
-    print(f"{m['name']:20s} {m['category']:10s} {m['source']:15s} "
-          f"{m['kappa_min']:8.3f} {m['kappa_meas']:8.3f} {ratio:6.2f}")
+    print(f"{m['name']:15s} {m['category']:10s} {m['ref']:20s} "
+          f"{m['kappa_min']:8.3f} {m['kappa_meas']:8.2f} {ratio:6.2f}")
 
 
 # ═══════════════════════════════════════════════════════════════════════
 # Plot
 # ═══════════════════════════════════════════════════════════════════════
 
-fig, ax = plt.subplots(figsize=(7, 7))
+fig, ax = plt.subplots(figsize=(6, 6))
 
 # Diagonal: κ_meas = κ_min
 diag = np.linspace(0.1, 10, 100)
@@ -199,35 +147,30 @@ cat_style = {
     'halide':  {'color': '#2ca02c', 'marker': '^', 'label': 'Halide'},
 }
 
-# Marker size by source
-size_map = {'This work': 120, 'Cheng 2021': 90, 'Literature': 70}
-edge_map = {'This work': 'black', 'Cheng 2021': '#333', 'Literature': '#666'}
-
-# Plot each point
 plotted_cats = set()
 for m in materials:
     cs = cat_style[m['category']]
-    sz = size_map.get(m['source'], 70)
-    ec = edge_map.get(m['source'], 'gray')
-    lw = 1.2 if m['source'] == 'This work' else 0.8
 
     label = cs['label'] if m['category'] not in plotted_cats else None
     plotted_cats.add(m['category'])
 
     ax.scatter(m['kappa_min'], m['kappa_meas'], zorder=3,
-               c=cs['color'], marker=cs['marker'], edgecolors=ec,
-               s=sz, linewidths=lw, label=label, alpha=0.85)
+               c=cs['color'], marker=cs['marker'], edgecolors='black',
+               s=100, linewidths=0.8, label=label, alpha=0.85)
 
-    # Label
+    # Label positioning
     ha, va, ox, oy = 'left', 'bottom', 6, 4
-    if m['name'] in ('LLZTO (SC)', 'LYC', 'NPS (Bernges)', 'LPS'):
-        va, oy = 'top', -6
-    if m['name'] in ('LAGP*', 'LLZTO*'):
+    # Avoid overlaps
+    if m['name'] in ('NZS', 'LPS'):
+        va, oy = 'top', -8
+    if m['name'] in ('Li₃YCl₆',):
         ha, ox = 'right', -6
+    if m['name'] in ('LSPS',):
+        va, oy = 'top', -8
 
     ax.annotate(m['name'], (m['kappa_min'], m['kappa_meas']),
                 textcoords="offset points", xytext=(ox, oy),
-                fontsize=6.5, ha=ha, va=va, color='#333')
+                fontsize=7, ha=ha, va=va, color='#333')
 
 # Linear fit in log space
 log_kmin = np.log10([m['kappa_min'] for m in materials])
@@ -248,15 +191,14 @@ ax.set_xlabel(r'$\kappa_{\min}$ at 300 K (W m$^{-1}$ K$^{-1}$)', fontsize=12)
 ax.set_ylabel(r'$\kappa_{\mathrm{measured}}$ at 300 K (W m$^{-1}$ K$^{-1}$)', fontsize=12)
 ax.set_xscale('log')
 ax.set_yscale('log')
-ax.set_xlim(0.15, 5)
-ax.set_ylim(0.15, 5)
+ax.set_xlim(0.2, 3)
+ax.set_ylim(0.2, 3)
 ax.set_aspect('equal')
 ax.tick_params(direction='in', which='both', top=True, right=True)
-ax.legend(fontsize=10, loc='upper left', framealpha=0.9,
-          edgecolor='#ccc', markerscale=1.2)
+ax.legend(fontsize=10, loc='upper left', framealpha=0.9, edgecolor='#ccc')
 
 # κ = κ_min annotation
-ax.text(2.5, 2.1, r'$\kappa = \kappa_{\min}$',
+ax.text(1.5, 1.3, r'$\kappa = \kappa_{\min}$',
         fontsize=9, color='gray', rotation=45, ha='center', va='center')
 
 plt.tight_layout()
