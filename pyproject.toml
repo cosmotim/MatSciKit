@@ -3,14 +3,21 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "MatSciKit"
+name = "MatSciKit-COSMOTIM"
 version = "0.2.0"
-description = "Python toolkit for materials science research data processing"
+description = "Python toolkit for materials science thermal property analysis"
 readme = "README.md"
 requires-python = ">=3.8"
-license = {file = "LICENSE"}
+license = "MIT"
 authors = [
-    {name = "cosmotim"}
+    {name = "Yitian Wang", email = "ywang1057@ucr.edu"}
+]
+keywords = [
+    "materials-science",
+    "thermal-conductivity",
+    "heat-capacity",
+    "debye-temperature",
+    "phonon",
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -22,6 +29,8 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
     "numpy",
@@ -29,10 +38,18 @@ dependencies = [
     "matplotlib",
 ]
 
+[project.scripts]
+matscikit = "MatSciKit_COSMOTIM.tui.app:main"
+
 [project.optional-dependencies]
+tui = [
+    "textual>=0.40.0",
+]
 dev = [
     "pytest",
     "pytest-cov",
+    "build",
+    "twine",
 ]
 
 [tool.setuptools.packages.find]
@@ -41,3 +58,4 @@ where = ["src"]
 [project.urls]
 Homepage = "https://github.com/cosmotim/MatSciKit"
 Repository = "https://github.com/cosmotim/MatSciKit"
+Issues = "https://github.com/cosmotim/MatSciKit/issues"

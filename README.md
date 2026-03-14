@@ -21,16 +21,29 @@ Pipeline 2: Thermal Conductivity   →  κ_solid, κ_min (Cahill), mean free pat
 
 ## Installation
 
+### From PyPI (recommended)
+
 ```bash
-# Clone the repository
+pip install matscikit-cosmotim
+```
+
+With interactive terminal interface:
+```bash
+pip install "matscikit-cosmotim[tui]"
+```
+
+### From GitHub (latest development version)
+
+```bash
+pip install git+https://github.com/cosmotim/MatSciKit.git
+```
+
+### For Development
+
+```bash
 git clone https://github.com/cosmotim/MatSciKit.git
 cd MatSciKit
-
-# Install in development mode
-pip install -e .
-
-# Or install directly
-pip install -e ".[dev]"  # includes pytest for testing
+pip install -e ".[dev,tui]"
 ```
 
 ### Dependencies
@@ -179,6 +192,22 @@ src/MatSciKit_COSMOTIM/
 | `ppms_hc` | Quantum Design PPMS HC | `.dat` file | [T, Cp, Cp_err] |
 | `dsc` | Netzsch DSC 214 | CSV export | [T(K), Cp] |
 | `lfa` | Laser Flash Analysis | CSV | [T, value, error] |
+
+## Interactive Terminal Interface
+
+MatSciKit includes an interactive TUI for loading and analyzing data without writing code:
+
+```bash
+# Launch the TUI (requires tui extra)
+pip install "matscikit-cosmotim[tui]"
+matscikit
+```
+
+Features:
+- File browser to select data files
+- Auto-detection of PPMS HC, PPMS TTO, DSC, and LFA formats
+- Loading progress and data preview
+- Pipeline analysis selection
 
 ## Running Tests
 
