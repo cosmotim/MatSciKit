@@ -4,6 +4,8 @@ LFA (Laser Flash Analysis) data reader.
 Reads thermal diffusivity or conductivity data from LFA CSV files.
 """
 
+from __future__ import annotations
+
 import numpy as np
 from pathlib import Path
 

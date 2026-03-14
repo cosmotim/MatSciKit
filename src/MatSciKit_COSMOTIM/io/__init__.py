@@ -9,6 +9,8 @@ dsc : Differential Scanning Calorimetry reader
 lfa : Laser Flash Analysis reader
 """
 
+from __future__ import annotations
+
 from . import ppms_tto, ppms_hc, dsc, lfa
 
 __all__ = ['ppms_tto', 'ppms_hc', 'dsc', 'lfa']

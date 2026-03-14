@@ -6,6 +6,8 @@ Convert between Debye temperature, sound velocity, and elastic modulus.
 Translated from modulus2debyeT.m and velocity2debyeT.m
 """
 
+from __future__ import annotations
+
 import numpy as np
 
 from MatSciKit_COSMOTIM.constants import h, kb, hbar

@@ -4,6 +4,8 @@ PPMS TTO (Thermal Transport Option) data reader.
 Reads thermal conductivity data from Quantum Design PPMS TTO .dat files.
 """
 
+from __future__ import annotations
+
 import numpy as np
 from pathlib import Path
 from typing import Optional, Union, List

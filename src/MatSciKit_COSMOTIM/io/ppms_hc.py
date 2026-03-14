@@ -4,6 +4,8 @@ PPMS HC (Heat Capacity) data reader.
 Reads heat capacity data from Quantum Design PPMS HC .dat files.
 """
 
+from __future__ import annotations
+
 import numpy as np
 from pathlib import Path
 from typing import Optional, Union, List

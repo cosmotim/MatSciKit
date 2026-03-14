@@ -55,6 +55,9 @@ dev = [
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+MatSciKit_COSMOTIM = ["py.typed"]
+
 [project.urls]
 Homepage = "https://github.com/cosmotim/MatSciKit"
 Repository = "https://github.com/cosmotim/MatSciKit"

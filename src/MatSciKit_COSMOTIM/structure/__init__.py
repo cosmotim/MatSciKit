@@ -9,6 +9,8 @@ xrd_reader : XRD data file reader
 xrd_plot : XRD multi-pattern plotter
 """
 
+from __future__ import annotations
+
 from . import cif_reader, material
 from .material import Material, load_database, batch_cahill, fetch_mp
 

@@ -7,6 +7,8 @@ Fits Cp/T vs T² in the low-temperature regime to extract the Debye temperature
 Translated from LowT_Cp_fitting.m
 """
 
+from __future__ import annotations
+
 import numpy as np
 from scipy.optimize import curve_fit
 from typing import Optional, Tuple

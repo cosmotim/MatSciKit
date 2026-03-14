@@ -4,6 +4,8 @@ Weighted linear regression with error propagation.
 Translated from linear_fit_with_errors.m
 """
 
+from __future__ import annotations
+
 import numpy as np
 from typing import Tuple
 

@@ -5,6 +5,8 @@ This module provides functions to format matplotlib figures for journal publicat
 and export them with appropriate settings.
 """
 
+from __future__ import annotations
+
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from pathlib import Path

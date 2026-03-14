@@ -7,6 +7,8 @@ the intrinsic solid thermal conductivity.
 Translated from solidTCwithPorosity.m
 """
 
+from __future__ import annotations
+
 import numpy as np
 from typing import Union
 

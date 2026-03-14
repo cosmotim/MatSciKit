@@ -13,6 +13,8 @@ Uses a built-in parser by default. If ``pymatgen`` is installed, it will
 be used for more robust parsing of complex CIF files.
 """
 
+from __future__ import annotations
+
 import math
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union

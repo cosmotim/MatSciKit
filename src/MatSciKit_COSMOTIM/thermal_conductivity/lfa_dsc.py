@@ -9,6 +9,8 @@ scanning calorimetry (heat capacity) to compute thermal conductivity:
 Translated from LFA_DSC_TC.m
 """
 
+from __future__ import annotations
+
 import numpy as np
 from typing import Tuple
 

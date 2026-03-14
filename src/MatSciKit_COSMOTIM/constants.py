@@ -1,22 +1,25 @@
 """
 Physical constants in SI units.
 
-All values are CODATA 2018 exact definitions where applicable.
+Values are sourced from :mod:`scipy.constants` (CODATA 2018).
+Aliases are provided for backward compatibility.
 """
 
-import numpy as np
+from __future__ import annotations
+
+from scipy import constants as _c
 
 # Boltzmann constant (J/K)
-kb = 1.380649e-23
+kb: float = _c.Boltzmann
 
 # Planck constant (J·s)
-h = 6.62607015e-34
+h: float = _c.Planck
 
-# Reduced Planck constant (J·s)
-hbar = h / (2 * np.pi)
+# Reduced Planck constant ħ (J·s)
+hbar: float = _c.hbar
 
 # Avogadro constant (mol⁻¹)
-NA = 6.02214076e23
+NA: float = _c.Avogadro
 
 # Atomic mass unit (kg)
-AMU_TO_KG = 1.66053906660e-27
+AMU_TO_KG: float = _c.atomic_mass

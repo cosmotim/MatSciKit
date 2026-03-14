@@ -7,6 +7,8 @@ and thermal properties of a material.
 Translated from Gruneisen_calculate.m
 """
 
+from __future__ import annotations
+
 import numpy as np
 from typing import Tuple
 

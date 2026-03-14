@@ -12,6 +12,8 @@ Field naming follows the Materials Project convention where applicable
 Part of Pipeline 0 (Structure).
 """
 
+from __future__ import annotations
+
 import json
 from dataclasses import dataclass, field
 from pathlib import Path

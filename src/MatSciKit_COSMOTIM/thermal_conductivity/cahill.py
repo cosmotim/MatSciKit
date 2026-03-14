@@ -7,6 +7,8 @@ Cahill-Watson-Pohl model for amorphous solids.
 Translated from calculate_cahill_TC.m
 """
 
+from __future__ import annotations
+
 import numpy as np
 from scipy.integrate import quad
 from typing import Union

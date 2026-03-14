@@ -7,6 +7,8 @@ from measured thermal conductivity data.
 Translated from MFP_from_TC.m
 """
 
+from __future__ import annotations
+
 import numpy as np
 from scipy.integrate import quad
 from typing import Union

@@ -12,6 +12,8 @@ Features:
 - Refinement data visualization (observed, calculated, background, residual)
 """
 
+from __future__ import annotations
+
 import numpy as np
 import matplotlib.pyplot as plt
 from typing import Dict, List, Tuple, Optional, Union, Any

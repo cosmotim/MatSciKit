@@ -6,6 +6,8 @@ Formats matplotlib figures for inset panels in journal publications.
 Translated from plotExportInsetStyle.m
 """
 
+from __future__ import annotations
+
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from pathlib import Path

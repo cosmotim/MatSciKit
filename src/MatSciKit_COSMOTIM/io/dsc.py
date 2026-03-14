@@ -4,6 +4,8 @@ DSC (Differential Scanning Calorimetry) data reader.
 Reads heat capacity data from DSC CSV export files (e.g., Netzsch DSC 214).
 """
 
+from __future__ import annotations
+
 import numpy as np
 from pathlib import Path
 

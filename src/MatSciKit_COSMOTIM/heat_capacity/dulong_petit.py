@@ -4,6 +4,8 @@ Dulong-Petit limit calculation.
 The classical upper limit of heat capacity per unit mass.
 """
 
+from __future__ import annotations
+
 from MatSciKit_COSMOTIM.constants import kb
 
 
