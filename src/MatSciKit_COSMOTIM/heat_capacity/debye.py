@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from MatSciKit_COSMOTIM.constants import h, kb, hbar
+from MatSciKit_COSMOTIM.constants import hbar, kb
 
 
 def from_velocity(v_s: float, n_density: float) -> float:

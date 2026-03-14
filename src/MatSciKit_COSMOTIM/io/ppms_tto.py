@@ -6,14 +6,14 @@ Reads thermal conductivity data from Quantum Design PPMS TTO .dat files.
 
 from __future__ import annotations
 
-import numpy as np
 from pathlib import Path
-from typing import Optional, Union, List
+
+import numpy as np
 
 
-def read(filepath: str,
-         drop_temps: Optional[Union[List[float], np.ndarray]] = None,
-         skip_rows: int = 27) -> np.ndarray:
+def read(
+    filepath: str, drop_temps: list[float] | np.ndarray | None = None, skip_rows: int = 27
+) -> np.ndarray:
     """
     Read and process thermal conductivity data from a PPMS TTO .dat file.
 
@@ -48,7 +48,7 @@ def read(filepath: str,
         drop_temps = drop_temps.tolist()
 
     # Read data, skipping header rows
-    data = np.genfromtxt(filepath, delimiter=',', skip_header=skip_rows)
+    data = np.genfromtxt(filepath, delimiter=",", skip_header=skip_rows)
 
     if data.ndim == 1:
         data = data.reshape(1, -1)
@@ -61,9 +61,11 @@ def read(filepath: str,
     # Check for non-positive temperatures (column index 5, 0-based)
     if np.any(data[:, 5] <= 0):
         import warnings
+
         warnings.warn(
             "This function uses K as a unit of temperature. "
-            "Some temperature data is below or equal to 0."
+            "Some temperature data is below or equal to 0.",
+            stacklevel=2,
         )
 
     # Drop specified temperature points

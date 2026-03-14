@@ -12,6 +12,6 @@ xrd_plot : XRD multi-pattern plotter
 from __future__ import annotations
 
 from . import cif_reader, material
-from .material import Material, load_database, batch_cahill, fetch_mp
+from .material import Material, batch_cahill, fetch_mp, load_database
 
-__all__ = ['cif_reader', 'material', 'Material', 'load_database', 'batch_cahill', 'fetch_mp']
+__all__ = ["Material", "batch_cahill", "cif_reader", "fetch_mp", "load_database", "material"]

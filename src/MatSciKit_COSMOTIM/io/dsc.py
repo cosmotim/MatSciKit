@@ -6,8 +6,9 @@ Reads heat capacity data from DSC CSV export files (e.g., Netzsch DSC 214).
 
 from __future__ import annotations
 
-import numpy as np
 from pathlib import Path
+
+import numpy as np
 
 
 def read(filepath: str, skip_rows: int = 34) -> np.ndarray:
@@ -42,11 +43,11 @@ def read(filepath: str, skip_rows: int = 34) -> np.ndarray:
     # Read CSV data
     # DSC files may contain non-UTF-8 characters (e.g., µ in µV)
     # Read with latin-1 encoding, then parse with numpy
-    with open(filepath, 'r', encoding='latin-1') as f:
+    with open(filepath, encoding="latin-1") as f:
         lines = f.readlines()[skip_rows:]
 
     # Parse numeric data from remaining lines
-    raw = np.genfromtxt(lines, delimiter=',')
+    raw = np.genfromtxt(lines, delimiter=",")
 
     if raw.ndim == 1:
         raw = raw.reshape(1, -1)

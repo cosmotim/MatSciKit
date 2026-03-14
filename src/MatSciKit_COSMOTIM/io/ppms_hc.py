@@ -6,14 +6,14 @@ Reads heat capacity data from Quantum Design PPMS HC .dat files.
 
 from __future__ import annotations
 
-import numpy as np
 from pathlib import Path
-from typing import Optional, Union, List
+
+import numpy as np
 
 
-def read(filepath: str,
-         drop_temps: Optional[Union[List[float], np.ndarray]] = None,
-         skip_rows: int = 15) -> np.ndarray:
+def read(
+    filepath: str, drop_temps: list[float] | np.ndarray | None = None, skip_rows: int = 15
+) -> np.ndarray:
     """
     Read and process heat capacity data from a PPMS HC .dat file.
 
@@ -48,7 +48,7 @@ def read(filepath: str,
     # Read data, skipping header rows
     # PPMS HC files can be comma or tab separated
     try:
-        data = np.genfromtxt(filepath, delimiter=',', skip_header=skip_rows)
+        data = np.genfromtxt(filepath, delimiter=",", skip_header=skip_rows)
     except ValueError:
         data = np.genfromtxt(filepath, skip_header=skip_rows)
 

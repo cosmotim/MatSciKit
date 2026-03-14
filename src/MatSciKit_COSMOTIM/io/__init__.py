@@ -11,6 +11,6 @@ lfa : Laser Flash Analysis reader
 
 from __future__ import annotations
 
-from . import ppms_tto, ppms_hc, dsc, lfa
+from . import dsc, lfa, ppms_hc, ppms_tto
 
-__all__ = ['ppms_tto', 'ppms_hc', 'dsc', 'lfa']
+__all__ = ["dsc", "lfa", "ppms_hc", "ppms_tto"]

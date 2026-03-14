@@ -52,6 +52,41 @@ dev = [
     "twine",
 ]
 
+[tool.ruff]
+line-length = 100
+target-version = "py38"
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "I",    # isort
+    "UP",   # pyupgrade
+    "D",    # pydocstyle
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "RUF",  # ruff-specific rules
+]
+ignore = [
+    "D100",    # Missing docstring in public module (we have them, but not all)
+    "D102",    # Missing docstring in public method (TUI event handlers)
+    "D104",    # Missing docstring in public package
+    "D105",    # Missing docstring in magic method
+    "D212",    # Multi-line docstring summary should start at first line
+    "D203",    # One blank line before class docstring (conflicts with D211)
+    "D401",    # Imperative mood (scientific function names are descriptive)
+    "RUF001",  # Ambiguous unicode in strings — intentional (en dash, etc.)
+    "RUF002",  # Ambiguous unicode in docstrings — intentional (Greek letters: γ, ρ, α)
+    "RUF003",  # Ambiguous unicode in comments — intentional (scientific notation)
+    "RUF012",  # Mutable class defaults — expected pattern for Textual widgets
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.isort]
+known-first-party = ["MatSciKit_COSMOTIM"]
+
 [tool.setuptools.packages.find]
 where = ["src"]
 

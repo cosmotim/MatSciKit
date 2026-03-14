@@ -10,16 +10,17 @@ Translated from Gruneisen_calculate.m
 from __future__ import annotations
 
 import numpy as np
-from typing import Tuple
 
 
-def calculate(thermal_expansion: float,
-              bulk_modulus: float,
-              cp: float,
-              density: float,
-              thermal_expansion_r_error: float = 0.0,
-              bulk_modulus_r_error: float = 0.0,
-              cp_r_error: float = 0.0) -> Tuple[float, float]:
+def calculate(
+    thermal_expansion: float,
+    bulk_modulus: float,
+    cp: float,
+    density: float,
+    thermal_expansion_r_error: float = 0.0,
+    bulk_modulus_r_error: float = 0.0,
+    cp_r_error: float = 0.0,
+) -> tuple[float, float]:
     """
     Calculate the Grüneisen parameter.
 
@@ -56,10 +57,8 @@ def calculate(thermal_expansion: float,
     """
     gamma = thermal_expansion * bulk_modulus / (cp * density)
 
-    gamma_error = np.sqrt(
-        thermal_expansion_r_error**2 +
-        bulk_modulus_r_error**2 +
-        cp_r_error**2
-    ) * gamma
+    gamma_error = (
+        np.sqrt(thermal_expansion_r_error**2 + bulk_modulus_r_error**2 + cp_r_error**2) * gamma
+    )
 
     return gamma, gamma_error

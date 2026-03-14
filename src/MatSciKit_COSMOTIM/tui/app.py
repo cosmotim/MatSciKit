@@ -6,16 +6,13 @@ Launch with: matscikit (after pip install) or python -m matscikit_cosmotim.tui.a
 
 from __future__ import annotations
 
-import os
-import time
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 from textual import on, work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.containers import Center, Container, Horizontal, Vertical, VerticalScroll
+from textual.containers import Center, Container, Horizontal, Vertical
 from textual.screen import Screen
 from textual.widgets import (
     Button,
@@ -69,6 +66,7 @@ FORMAT_COLUMNS = {
 # Splash Screen
 # ===================================================================
 
+
 class SplashScreen(Screen):
     """Welcome screen shown on launch."""
 
@@ -107,12 +105,11 @@ class SplashScreen(Screen):
     """
 
     def compose(self) -> ComposeResult:
-        with Center():
-            with Container(id="splash-box"):
-                yield Static(SPLASH_ART, id="splash-art")
-                yield Static(f"v{PACKAGE_VERSION}", id="splash-version")
-                yield Static(AUTHOR_INFO, id="splash-author")
-                yield Static("Press any key to continue …", id="splash-hint")
+        with Center(), Container(id="splash-box"):
+            yield Static(SPLASH_ART, id="splash-art")
+            yield Static(f"v{PACKAGE_VERSION}", id="splash-version")
+            yield Static(AUTHOR_INFO, id="splash-author")
+            yield Static("Press any key to continue …", id="splash-hint")
 
     def on_mount(self) -> None:
         self.set_timer(self.AUTO_DISMISS_SECONDS, self._dismiss)
@@ -131,6 +128,7 @@ class SplashScreen(Screen):
 # ===================================================================
 # Load Data Screen
 # ===================================================================
+
 
 class LoadDataScreen(Screen):
     """File browser + format selector + data preview."""
@@ -184,7 +182,7 @@ class LoadDataScreen(Screen):
 
     def __init__(self) -> None:
         super().__init__()
-        self._selected_path: Optional[Path] = None
+        self._selected_path: Path | None = None
         self._selected_format: str = "ppms_hc"
 
     def compose(self) -> ComposeResult:
@@ -211,9 +209,7 @@ class LoadDataScreen(Screen):
     def file_selected(self, event: DirectoryTree.FileSelected) -> None:
         self._selected_path = Path(str(event.path))
         self.query_one("#load-btn", Button).disabled = False
-        self.query_one("#status-label", Label).update(
-            f"Selected: {self._selected_path.name}"
-        )
+        self.query_one("#status-label", Label).update(f"Selected: {self._selected_path.name}")
 
     @on(Select.Changed, "#format-select")
     def format_changed(self, event: Select.Changed) -> None:
@@ -234,9 +230,7 @@ class LoadDataScreen(Screen):
 
         self.app.call_from_thread(btn.__setattr__, "disabled", True)
         self.app.call_from_thread(progress.update, progress=0)
-        self.app.call_from_thread(
-            status.update, f"Loading {self._selected_path.name} …"
-        )
+        self.app.call_from_thread(status.update, f"Loading {self._selected_path.name} …")
 
         fmt = self._selected_format
         path = str(self._selected_path)
@@ -248,15 +242,19 @@ class LoadDataScreen(Screen):
             # Import and call the correct reader
             if fmt == "ppms_hc":
                 from MatSciKit_COSMOTIM.io import ppms_hc
+
                 data = ppms_hc.read(path)
             elif fmt == "ppms_tto":
                 from MatSciKit_COSMOTIM.io import ppms_tto
+
                 data = ppms_tto.read(path)
             elif fmt == "dsc":
                 from MatSciKit_COSMOTIM.io import dsc
+
                 data = dsc.read(path)
             elif fmt == "lfa":
                 from MatSciKit_COSMOTIM.io import lfa
+
                 data = lfa.read(path)
             else:
                 raise ValueError(f"Unknown format: {fmt}")
@@ -294,9 +292,7 @@ class LoadDataScreen(Screen):
             self.app.call_from_thread(progress.update, progress=100)
 
         except Exception as exc:
-            self.app.call_from_thread(
-                status.update, f"❌ Error: {exc}"
-            )
+            self.app.call_from_thread(status.update, f"❌ Error: {exc}")
             self.app.call_from_thread(progress.update, progress=0)
 
         self.app.call_from_thread(btn.__setattr__, "disabled", False)
@@ -308,6 +304,7 @@ class LoadDataScreen(Screen):
 # ===================================================================
 # About Screen
 # ===================================================================
+
 
 class AboutScreen(Screen):
     """Package information."""
@@ -343,21 +340,20 @@ class AboutScreen(Screen):
     """
 
     def compose(self) -> ComposeResult:
-        with Center():
-            with Container(id="about-box"):
-                yield Static("MatSciKit_COSMOTIM", id="about-title")
-                yield Static(
-                    f"Version {PACKAGE_VERSION}\n\n"
-                    "A Python toolkit for materials science\n"
-                    "thermal property analysis.\n\n"
-                    "Pipelines:\n"
-                    "  1. Structure — crystal structure, Debye θ, sound velocities\n"
-                    "  2. Heat Capacity — Dulong-Petit, Debye model, Cp fitting\n"
-                    "  3. Thermal Conductivity — κ_min, MFP, LFA/TTO processing\n\n"
-                    f"{AUTHOR_INFO}",
-                    id="about-text",
-                )
-                yield Button("Back", id="about-back", variant="default")
+        with Center(), Container(id="about-box"):
+            yield Static("MatSciKit_COSMOTIM", id="about-title")
+            yield Static(
+                f"Version {PACKAGE_VERSION}\n\n"
+                "A Python toolkit for materials science\n"
+                "thermal property analysis.\n\n"
+                "Pipelines:\n"
+                "  1. Structure — crystal structure, Debye θ, sound velocities\n"
+                "  2. Heat Capacity — Dulong-Petit, Debye model, Cp fitting\n"
+                "  3. Thermal Conductivity — κ_min, MFP, LFA/TTO processing\n\n"
+                f"{AUTHOR_INFO}",
+                id="about-text",
+            )
+            yield Button("Back", id="about-back", variant="default")
 
     @on(Button.Pressed, "#about-back")
     def go_back_btn(self) -> None:
@@ -370,6 +366,7 @@ class AboutScreen(Screen):
 # ===================================================================
 # Main Menu Screen
 # ===================================================================
+
 
 class MainMenuScreen(Screen):
     """Primary navigation menu."""
@@ -398,19 +395,18 @@ class MainMenuScreen(Screen):
     """
 
     def compose(self) -> ComposeResult:
-        with Center():
-            with Container(id="menu-box"):
-                yield Static("MatSciKit_COSMOTIM", id="menu-title")
-                yield Button("📂  Load Data", id="btn-load", variant="primary", classes="menu-btn")
-                yield Button(
-                    "🔬  Analysis Pipelines",
-                    id="btn-analysis",
-                    variant="default",
-                    classes="menu-btn",
-                    disabled=True,
-                )
-                yield Button("ℹ️   About", id="btn-about", variant="default", classes="menu-btn")
-                yield Button("🚪  Quit", id="btn-quit", variant="error", classes="menu-btn")
+        with Center(), Container(id="menu-box"):
+            yield Static("MatSciKit_COSMOTIM", id="menu-title")
+            yield Button("📂  Load Data", id="btn-load", variant="primary", classes="menu-btn")
+            yield Button(
+                "🔬  Analysis Pipelines",
+                id="btn-analysis",
+                variant="default",
+                classes="menu-btn",
+                disabled=True,
+            )
+            yield Button("ℹ️   About", id="btn-about", variant="default", classes="menu-btn")
+            yield Button("🚪  Quit", id="btn-quit", variant="error", classes="menu-btn")
 
     def on_screen_resume(self) -> None:
         """Enable analysis button if data has been loaded."""
@@ -437,6 +433,7 @@ class MainMenuScreen(Screen):
 # ===================================================================
 # Analysis Screen (placeholder — will be expanded)
 # ===================================================================
+
 
 class AnalysisScreen(Screen):
     """Pipeline selection (placeholder for future expansion)."""
@@ -474,36 +471,33 @@ class AnalysisScreen(Screen):
     """
 
     def compose(self) -> ComposeResult:
-        with Center():
-            with Container(id="analysis-box"):
-                yield Static("🔬 Analysis Pipelines", id="analysis-title")
-                yield Static("", id="analysis-info")
-                yield Button(
-                    "1. Structure — Debye θ, Sound Velocities",
-                    id="btn-pipe1",
-                    variant="primary",
-                    classes="analysis-btn",
-                )
-                yield Button(
-                    "2. Heat Capacity — Dulong-Petit, Debye, Cp",
-                    id="btn-pipe2",
-                    variant="primary",
-                    classes="analysis-btn",
-                )
-                yield Button(
-                    "3. Thermal Conductivity — κ_min, MFP, LFA/TTO",
-                    id="btn-pipe3",
-                    variant="primary",
-                    classes="analysis-btn",
-                )
-                yield Button("← Back", id="btn-back", variant="default", classes="analysis-btn")
+        with Center(), Container(id="analysis-box"):
+            yield Static("🔬 Analysis Pipelines", id="analysis-title")
+            yield Static("", id="analysis-info")
+            yield Button(
+                "1. Structure — Debye θ, Sound Velocities",
+                id="btn-pipe1",
+                variant="primary",
+                classes="analysis-btn",
+            )
+            yield Button(
+                "2. Heat Capacity — Dulong-Petit, Debye, Cp",
+                id="btn-pipe2",
+                variant="primary",
+                classes="analysis-btn",
+            )
+            yield Button(
+                "3. Thermal Conductivity — κ_min, MFP, LFA/TTO",
+                id="btn-pipe3",
+                variant="primary",
+                classes="analysis-btn",
+            )
+            yield Button("← Back", id="btn-back", variant="default", classes="analysis-btn")
 
     def on_mount(self) -> None:
         loaded_path = getattr(self.app, "loaded_path", None)
         if loaded_path:
-            self.query_one("#analysis-info", Static).update(
-                f"Data loaded: {loaded_path.name}"
-            )
+            self.query_one("#analysis-info", Static).update(f"Data loaded: {loaded_path.name}")
 
     @on(Button.Pressed, "#btn-back")
     def go_back_btn(self) -> None:
@@ -523,6 +517,7 @@ class AnalysisScreen(Screen):
 # Main App
 # ===================================================================
 
+
 class MatSciKitApp(App):
     """MatSciKit interactive terminal application."""
 
@@ -539,9 +534,9 @@ class MatSciKitApp(App):
     ]
 
     # State: set by LoadDataScreen when data is loaded
-    loaded_data: Optional[np.ndarray] = None
-    loaded_format: Optional[str] = None
-    loaded_path: Optional[Path] = None
+    loaded_data: np.ndarray | None = None
+    loaded_format: str | None = None
+    loaded_path: Path | None = None
 
     def on_mount(self) -> None:
         self.push_screen(MainMenuScreen())

@@ -12,15 +12,19 @@ Translated from LFA_DSC_TC.m
 from __future__ import annotations
 
 import numpy as np
-from typing import Tuple
 
 
-def calculate(cp_T: np.ndarray, cp: np.ndarray, cp_error: np.ndarray,
-              diff_T: np.ndarray, diffusivity: np.ndarray,
-              diff_error: np.ndarray,
-              density: float, density_error: float,
-              t_window: float = 5.0
-              ) -> Tuple[np.ndarray, np.ndarray]:
+def calculate(
+    cp_T: np.ndarray,
+    cp: np.ndarray,
+    cp_error: np.ndarray,
+    diff_T: np.ndarray,
+    diffusivity: np.ndarray,
+    diff_error: np.ndarray,
+    density: float,
+    density_error: float,
+    t_window: float = 5.0,
+) -> tuple[np.ndarray, np.ndarray]:
     """
     Calculate thermal conductivity from LFA diffusivity and DSC Cp.
 
@@ -78,16 +82,16 @@ def calculate(cp_T: np.ndarray, cp: np.ndarray, cp_error: np.ndarray,
             cp_avg_err[i] = cp_error[nearest]
         else:
             cp_avg[i] = np.mean(cp[idx])
-            cp_avg_err[i] = np.sqrt(np.sum(cp_error[idx]**2))
+            cp_avg_err[i] = np.sqrt(np.sum(cp_error[idx] ** 2))
 
     # Calculate thermal conductivity: κ = Cp × α × ρ
     tc = cp_avg * diffusivity * density
 
     # Error propagation: (δκ/κ)² = (δCp/Cp)² + (δα/α)² + (δρ/ρ)²
     relative_error = np.sqrt(
-        (cp_avg_err / cp_avg)**2 +
-        (diff_error / diffusivity)**2 +
-        (density_error / density)**2
+        (cp_avg_err / cp_avg) ** 2
+        + (diff_error / diffusivity) ** 2
+        + (density_error / density) ** 2
     )
     tc_error = tc * relative_error
 

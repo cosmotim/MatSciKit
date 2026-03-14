@@ -11,9 +11,8 @@ from __future__ import annotations
 
 import numpy as np
 from scipy.integrate import quad
-from typing import Union
 
-from MatSciKit_COSMOTIM.constants import kb, hbar
+from MatSciKit_COSMOTIM.constants import hbar, kb
 
 
 def _integrand(x: float) -> float:
@@ -23,7 +22,7 @@ def _integrand(x: float) -> float:
     if x > 500:
         return 0.0
     ex = np.exp(x)
-    return x**4 * ex / (ex - 1)**2
+    return x**4 * ex / (ex - 1) ** 2
 
 
 def _debye_integral(T: float, theta_D: float) -> float:
@@ -49,10 +48,9 @@ def _debye_integral(T: float, theta_D: float) -> float:
     return result
 
 
-def calculate(T: Union[float, np.ndarray],
-              kappa: Union[float, np.ndarray],
-              theta_D: float,
-              v_s: float) -> Union[float, np.ndarray]:
+def calculate(
+    T: float | np.ndarray, kappa: float | np.ndarray, theta_D: float, v_s: float
+) -> float | np.ndarray:
     """
     Calculate phonon mean free path from thermal conductivity.
 
@@ -93,7 +91,7 @@ def calculate(T: Union[float, np.ndarray],
     for i in range(len(T)):
         integral_val = _debye_integral(T[i], theta_D)
         # Prefactor: kb⁴·T³ / (2π²·v_s²·ℏ³)
-        prefactor = (kb**4 * T[i]**3) / (2 * np.pi**2 * v_s**2 * hbar**3)
+        prefactor = (kb**4 * T[i] ** 3) / (2 * np.pi**2 * v_s**2 * hbar**3)
         mfp[i] = kappa[i] / (prefactor * integral_val)
 
     if mfp.size == 1:

@@ -10,11 +10,9 @@ Translated from solidTCwithPorosity.m
 from __future__ import annotations
 
 import numpy as np
-from typing import Union
 
 
-def correct(kappa: Union[float, np.ndarray],
-            porosity: float) -> Union[float, np.ndarray]:
+def correct(kappa: float | np.ndarray, porosity: float) -> float | np.ndarray:
     """
     Calculate solid thermal conductivity from measured porous value.
 
@@ -50,9 +48,10 @@ def correct(kappa: Union[float, np.ndarray],
 
     if porosity > 0.15:
         import warnings
+
         warnings.warn(
-            f"Porosity {porosity:.2f} > 0.15; Maxwell-Eucken correction "
-            "may not be accurate."
+            f"Porosity {porosity:.2f} > 0.15; Maxwell-Eucken correction may not be accurate.",
+            stacklevel=2,
         )
 
     return kappa * (2 + porosity) / (2 - 2 * porosity)

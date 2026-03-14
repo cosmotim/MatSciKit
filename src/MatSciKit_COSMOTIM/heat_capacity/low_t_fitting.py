@@ -11,9 +11,8 @@ from __future__ import annotations
 
 import numpy as np
 from scipy.optimize import curve_fit
-from typing import Optional, Tuple
 
-from MatSciKit_COSMOTIM.constants import kb, h, hbar
+from MatSciKit_COSMOTIM.constants import hbar, kb
 
 
 def _linear(x: np.ndarray, a: float, b: float) -> np.ndarray:
@@ -21,11 +20,15 @@ def _linear(x: np.ndarray, a: float, b: float) -> np.ndarray:
     return a * x + b
 
 
-def fit(T: np.ndarray, Cp: np.ndarray, Cp_err: np.ndarray,
-        n_density: float, density: float,
-        t_range: Optional[Tuple[float, float]] = None,
-        n_range: Optional[Tuple[int, int]] = None
-        ) -> Tuple[float, float, float, float]:
+def fit(
+    T: np.ndarray,
+    Cp: np.ndarray,
+    Cp_err: np.ndarray,
+    n_density: float,
+    density: float,
+    t_range: tuple[float, float] | None = None,
+    n_range: tuple[int, int] | None = None,
+) -> tuple[float, float, float, float]:
     """
     Extract Debye temperature and sound velocity from low-T Cp data.
 
@@ -106,7 +109,7 @@ def fit(T: np.ndarray, Cp: np.ndarray, Cp_err: np.ndarray,
     if t_range is not None:
         # Method 1: Temperature range
         t_min, t_max = t_range
-        mask = (T >= t_min) & (T <= t_max)
+        mask = (t_min <= T) & (t_max >= T)
         T = T[mask]
         Cp = Cp[mask]
         Cp_err = Cp_err[mask]
@@ -114,9 +117,9 @@ def fit(T: np.ndarray, Cp: np.ndarray, Cp_err: np.ndarray,
         # Method 2: Index range (1-based inclusive, like MATLAB)
         n_start, n_end = n_range
         # Convert 1-based inclusive to 0-based Python slice
-        T = T[n_start - 1:n_end]
-        Cp = Cp[n_start - 1:n_end]
-        Cp_err = Cp_err[n_start - 1:n_end]
+        T = T[n_start - 1 : n_end]
+        Cp = Cp[n_start - 1 : n_end]
+        Cp_err = Cp_err[n_start - 1 : n_end]
 
     if len(T) < 3:
         raise ValueError(

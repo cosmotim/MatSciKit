@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import numpy as np
 from scipy.integrate import quad
-from typing import Union
 
 from MatSciKit_COSMOTIM.constants import kb
 
@@ -24,7 +23,7 @@ def _integrand(x: float) -> float:
         # For very large x, eˣ dominates: x³·eˣ/(eˣ)² = x³·e⁻ˣ → 0
         return 0.0
     ex = np.exp(x)
-    return x**3 * ex / (ex - 1)**2
+    return x**3 * ex / (ex - 1) ** 2
 
 
 def _debye_integral(T: float, theta_D: float) -> float:
@@ -50,10 +49,9 @@ def _debye_integral(T: float, theta_D: float) -> float:
     return result
 
 
-def minimum_tc(T: Union[float, np.ndarray],
-               n_density: float,
-               theta_D: float,
-               v_s: float) -> Union[float, np.ndarray]:
+def minimum_tc(
+    T: float | np.ndarray, n_density: float, theta_D: float, v_s: float
+) -> float | np.ndarray:
     """
     Calculate the Cahill minimum thermal conductivity.
 
@@ -97,10 +95,8 @@ def minimum_tc(T: Union[float, np.ndarray],
     return kappa_min
 
 
-def minimum_tc_high_T(n_density: float,
-                      v_L: float,
-                      v_T: float) -> float:
-    """
+def minimum_tc_high_T(n_density: float, v_L: float, v_T: float) -> float:
+    r"""
     Cahill minimum thermal conductivity in the high-temperature limit.
 
     Uses the simplified Cheng et al. formula valid when T >> θ_D,

@@ -6,8 +6,9 @@ Reads thermal diffusivity or conductivity data from LFA CSV files.
 
 from __future__ import annotations
 
-import numpy as np
 from pathlib import Path
+
+import numpy as np
 
 
 def read(filepath: str) -> np.ndarray:
@@ -36,7 +37,7 @@ def read(filepath: str) -> np.ndarray:
     if not filepath.exists():
         raise FileNotFoundError(f"File not found: {filepath}")
 
-    data = np.genfromtxt(filepath, delimiter=',')
+    data = np.genfromtxt(filepath, delimiter=",")
 
     if data.ndim == 1:
         data = data.reshape(1, -1)

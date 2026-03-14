@@ -17,23 +17,25 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import numpy as np
 
-from ..constants import kb, hbar, AMU_TO_KG
-
+from ..constants import AMU_TO_KG, hbar, kb
 
 # Average atomic masses (amu) for common solid electrolytes
-_DEFAULT_AVG_MASSES: Dict[str, float] = {
-    'LAGP': (6.941*1.5 + 26.982*0.5 + 72.630*1.5 + 30.974*3 + 15.999*12) / (1.5+0.5+1.5+3+12),
-    'NZP': (22.990 + 91.224*2 + 30.974*3 + 15.999*12) / (1+2+3+12),
-    'LLZTO': (6.941*6.5 + 138.91*3 + 91.224*1.5 + 180.95*0.5 + 15.999*12) / (6.5+3+1.5+0.5+12),
-    'LSHT': (6.941*3/8 + 87.62*7/16 + 178.49*1/4 + 180.95*3/4 + 15.999*3) / (3/8+7/16+1/4+3/4+3),
-    'LGPS': (6.941*10 + 72.630 + 30.974*2 + 32.06*12) / (10+1+2+12),
-    'LPSCl': (6.941*6 + 30.974 + 32.06*5 + 35.45) / (6+1+5+1),
-    'Na3PS4': (22.990*3 + 30.974 + 32.06*4) / (3+1+4),
-    'Li3InCl6': (6.941*3 + 114.82 + 35.45*6) / (3+1+6),
+_DEFAULT_AVG_MASSES: dict[str, float] = {
+    "LAGP": (6.941 * 1.5 + 26.982 * 0.5 + 72.630 * 1.5 + 30.974 * 3 + 15.999 * 12)
+    / (1.5 + 0.5 + 1.5 + 3 + 12),
+    "NZP": (22.990 + 91.224 * 2 + 30.974 * 3 + 15.999 * 12) / (1 + 2 + 3 + 12),
+    "LLZTO": (6.941 * 6.5 + 138.91 * 3 + 91.224 * 1.5 + 180.95 * 0.5 + 15.999 * 12)
+    / (6.5 + 3 + 1.5 + 0.5 + 12),
+    "LSHT": (6.941 * 3 / 8 + 87.62 * 7 / 16 + 178.49 * 1 / 4 + 180.95 * 3 / 4 + 15.999 * 3)
+    / (3 / 8 + 7 / 16 + 1 / 4 + 3 / 4 + 3),
+    "LGPS": (6.941 * 10 + 72.630 + 30.974 * 2 + 32.06 * 12) / (10 + 1 + 2 + 12),
+    "LPSCl": (6.941 * 6 + 30.974 + 32.06 * 5 + 35.45) / (6 + 1 + 5 + 1),
+    "Na3PS4": (22.990 * 3 + 30.974 + 32.06 * 4) / (3 + 1 + 4),
+    "Li3InCl6": (6.941 * 3 + 114.82 + 35.45 * 6) / (3 + 1 + 6),
 }
 
 
@@ -116,34 +118,34 @@ class Material:
     # --- Identity ---
     name: str
     formula: str
-    material_id: Optional[str] = None
+    material_id: str | None = None
 
     # --- Structure ---
-    density: float = 0.0                     # kg/m³
-    density_atomic: Optional[float] = None   # atoms/ų
-    n_density: float = 0.0                   # atoms/m³
-    volume: Optional[float] = None           # ų
-    nsites: Optional[int] = None
+    density: float = 0.0  # kg/m³
+    density_atomic: float | None = None  # atoms/ų
+    n_density: float = 0.0  # atoms/m³
+    volume: float | None = None  # ų
+    nsites: int | None = None
 
     # --- Sound velocities (m/s) ---
-    sound_velocity: Optional[Dict[str, float]] = None
+    sound_velocity: dict[str, float] | None = None
 
     # --- Elastic moduli ---
-    bulk_modulus: Optional[Dict[str, float]] = None    # GPa
-    shear_modulus: Optional[Dict[str, float]] = None   # GPa
-    young_modulus: Optional[float] = None               # GPa
-    homogeneous_poisson: Optional[float] = None
-    universal_anisotropy: Optional[float] = None
+    bulk_modulus: dict[str, float] | None = None  # GPa
+    shear_modulus: dict[str, float] | None = None  # GPa
+    young_modulus: float | None = None  # GPa
+    homogeneous_poisson: float | None = None
+    universal_anisotropy: float | None = None
 
     # --- Thermal ---
-    debye_temperature: Optional[float] = None          # K
-    thermal_conductivity: Optional[Dict[str, float]] = None  # W/(m·K)
+    debye_temperature: float | None = None  # K
+    thermal_conductivity: dict[str, float] | None = None  # W/(m·K)
 
     # --- Metadata ---
-    category: Optional[str] = None
-    symmetry: Optional[Dict[str, Any]] = None
-    elements: Optional[List[str]] = None
-    sources: List[str] = field(default_factory=list)
+    category: str | None = None
+    symmetry: dict[str, Any] | None = None
+    elements: list[str] | None = None
+    sources: list[str] = field(default_factory=list)
 
     def __post_init__(self):
         # Derive n_density from density_atomic if available
@@ -157,7 +159,7 @@ class Material:
     # --- Convenience properties ---
 
     @property
-    def v_avg(self) -> Optional[float]:
+    def v_avg(self) -> float | None:
         """Average (Debye) sound velocity (m/s).
 
         Priority:
@@ -174,49 +176,49 @@ class Material:
             return None
 
         # Explicit average from our database format
-        if 'average' in self.sound_velocity and self.sound_velocity['average']:
-            return self.sound_velocity['average']
+        if self.sound_velocity.get("average"):
+            return self.sound_velocity["average"]
 
         # Compute Debye average from v_L and v_T (standard for Cahill model)
-        v_L = self.sound_velocity.get('longitudinal')
-        v_T = self.sound_velocity.get('transverse')
+        v_L = self.sound_velocity.get("longitudinal")
+        v_T = self.sound_velocity.get("transverse")
         if v_L and v_T:
-            return (1.0/3 * (1/v_L**3 + 2/v_T**3)) ** (-1.0/3)
+            return (1.0 / 3 * (1 / v_L**3 + 2 / v_T**3)) ** (-1.0 / 3)
 
         return None
 
     @property
-    def v_L(self) -> Optional[float]:
+    def v_L(self) -> float | None:
         """Longitudinal sound velocity (m/s)."""
         if self.sound_velocity is None:
             return None
-        return self.sound_velocity.get('longitudinal')
+        return self.sound_velocity.get("longitudinal")
 
     @property
-    def v_T(self) -> Optional[float]:
+    def v_T(self) -> float | None:
         """Transverse sound velocity (m/s)."""
         if self.sound_velocity is None:
             return None
-        return self.sound_velocity.get('transverse')
+        return self.sound_velocity.get("transverse")
 
     @property
-    def K_vrh(self) -> Optional[float]:
+    def K_vrh(self) -> float | None:
         """Voigt-Reuss-Hill bulk modulus (GPa)."""
         if self.bulk_modulus is None:
             return None
-        return self.bulk_modulus.get('vrh')
+        return self.bulk_modulus.get("vrh")
 
     @property
-    def G_vrh(self) -> Optional[float]:
+    def G_vrh(self) -> float | None:
         """Voigt-Reuss-Hill shear modulus (GPa)."""
         if self.shear_modulus is None:
             return None
-        return self.shear_modulus.get('vrh')
+        return self.shear_modulus.get("vrh")
 
     # --- Factory methods ---
 
     @classmethod
-    def from_mp(cls, mp_doc: Any, name: Optional[str] = None) -> 'Material':
+    def from_mp(cls, mp_doc: Any, name: str | None = None) -> Material:
         """
         Create a Material from a Materials Project API document.
 
@@ -248,49 +250,54 @@ class Material:
         ...     )
         ...     mat = Material.from_mp(docs[0], name="STO")
         """
-        formula = getattr(mp_doc, 'formula_pretty', '') or ''
-        mpid = str(getattr(mp_doc, 'material_id', '') or '')
-        density = getattr(mp_doc, 'density', None) or 0.0
-        density_atomic = getattr(mp_doc, 'density_atomic', None)
-        volume = getattr(mp_doc, 'volume', None)
-        nsites = getattr(mp_doc, 'nsites', None)
+        formula = getattr(mp_doc, "formula_pretty", "") or ""
+        mpid = str(getattr(mp_doc, "material_id", "") or "")
+        density = getattr(mp_doc, "density", None) or 0.0
+        density_atomic = getattr(mp_doc, "density_atomic", None)
+        volume = getattr(mp_doc, "volume", None)
+        nsites = getattr(mp_doc, "nsites", None)
 
         # Sound velocity
-        sv_obj = getattr(mp_doc, 'sound_velocity', None)
+        sv_obj = getattr(mp_doc, "sound_velocity", None)
         sound_velocity = None
         if sv_obj is not None:
             sound_velocity = {}
-            for key in ['transverse', 'longitudinal', 'snyder_acoustic',
-                        'snyder_optical', 'snyder_total']:
+            for key in [
+                "transverse",
+                "longitudinal",
+                "snyder_acoustic",
+                "snyder_optical",
+                "snyder_total",
+            ]:
                 val = getattr(sv_obj, key, None)
                 if val is not None:
                     sound_velocity[key] = val
 
         # Elastic moduli
-        bulk = getattr(mp_doc, 'bulk_modulus', None)
+        bulk = getattr(mp_doc, "bulk_modulus", None)
         bulk_modulus = None
         if bulk is not None:
             bulk_modulus = {}
-            for key in ['voigt', 'reuss', 'vrh']:
+            for key in ["voigt", "reuss", "vrh"]:
                 val = getattr(bulk, key, None)
                 if val is not None:
                     bulk_modulus[key] = val
 
-        shear = getattr(mp_doc, 'shear_modulus', None)
+        shear = getattr(mp_doc, "shear_modulus", None)
         shear_modulus = None
         if shear is not None:
             shear_modulus = {}
-            for key in ['voigt', 'reuss', 'vrh']:
+            for key in ["voigt", "reuss", "vrh"]:
                 val = getattr(shear, key, None)
                 if val is not None:
                     shear_modulus[key] = val
 
         # Thermal conductivity
-        tc_obj = getattr(mp_doc, 'thermal_conductivity', None)
+        tc_obj = getattr(mp_doc, "thermal_conductivity", None)
         thermal_conductivity = None
         if tc_obj is not None:
             thermal_conductivity = {}
-            for key in ['clarke', 'cahill']:
+            for key in ["clarke", "cahill"]:
                 val = getattr(tc_obj, key, None)
                 if val is not None:
                     thermal_conductivity[key] = val
@@ -304,18 +311,18 @@ class Material:
 
         # Elements
         elements = None
-        elem_list = getattr(mp_doc, 'elements', None)
+        elem_list = getattr(mp_doc, "elements", None)
         if elem_list:
             elements = [str(e) for e in elem_list]
 
         # Symmetry
-        sym_obj = getattr(mp_doc, 'symmetry', None)
+        sym_obj = getattr(mp_doc, "symmetry", None)
         symmetry = None
         if sym_obj is not None:
             symmetry = {
-                'crystal_system': getattr(sym_obj, 'crystal_system', None),
-                'symbol': getattr(sym_obj, 'symbol', None),
-                'number': getattr(sym_obj, 'number', None),
+                "crystal_system": getattr(sym_obj, "crystal_system", None),
+                "symbol": getattr(sym_obj, "symbol", None),
+                "number": getattr(sym_obj, "number", None),
             }
 
         return cls(
@@ -331,10 +338,12 @@ class Material:
             sound_velocity=sound_velocity,
             bulk_modulus=bulk_modulus,
             shear_modulus=shear_modulus,
-            young_modulus=getattr(mp_doc, 'youngs_modulus', None) or getattr(mp_doc, 'young_modulus', None),
-            homogeneous_poisson=getattr(mp_doc, 'homogeneous_poisson', None),
-            universal_anisotropy=getattr(mp_doc, 'universal_anisotropy', None),
-            debye_temperature=getattr(mp_doc, 'debye_temperature', None),
+            young_modulus=(
+                getattr(mp_doc, "youngs_modulus", None) or getattr(mp_doc, "young_modulus", None)
+            ),
+            homogeneous_poisson=getattr(mp_doc, "homogeneous_poisson", None),
+            universal_anisotropy=getattr(mp_doc, "universal_anisotropy", None),
+            debye_temperature=getattr(mp_doc, "debye_temperature", None),
             thermal_conductivity=thermal_conductivity,
             elements=elements,
             symmetry=symmetry,
@@ -342,9 +351,13 @@ class Material:
         )
 
     @classmethod
-    def from_cif(cls, path: Union[str, Path], name: str = '',
-                 sound_velocity: Optional[Dict[str, float]] = None,
-                 **kwargs) -> 'Material':
+    def from_cif(
+        cls,
+        path: str | Path,
+        name: str = "",
+        sound_velocity: dict[str, float] | None = None,
+        **kwargs,
+    ) -> Material:
         """
         Create a Material from a CIF file.
 
@@ -367,25 +380,30 @@ class Material:
         from . import cif_reader
 
         result = cif_reader.read(path)
-        volume_ang3 = result['volume']
+        volume_ang3 = result["volume"]
 
         return cls(
             name=name or Path(path).stem,
             formula=name or Path(path).stem,
-            density=result['density'],
-            n_density=result['n_density'],
+            density=result["density"],
+            n_density=result["n_density"],
             volume=volume_ang3,
-            nsites=int(round(result['total_atoms'])),
+            nsites=round(result["total_atoms"]),
             sound_velocity=sound_velocity,
             **kwargs,
         )
 
     @classmethod
-    def from_params(cls, name: str, formula: str,
-                    volume_m3: float, total_atoms: float,
-                    total_mass_kg: float,
-                    sound_velocity: Optional[Dict[str, float]] = None,
-                    **kwargs) -> 'Material':
+    def from_params(
+        cls,
+        name: str,
+        formula: str,
+        volume_m3: float,
+        total_atoms: float,
+        total_mass_kg: float,
+        sound_velocity: dict[str, float] | None = None,
+        **kwargs,
+    ) -> Material:
         """
         Create a Material from manual parameters.
 
@@ -418,7 +436,7 @@ class Material:
 
 
 def estimate_debye_temperature(v_s: float, n_density: float) -> float:
-    """
+    r"""
     Estimate Debye temperature from sound velocity and number density.
 
     .. math::
@@ -459,7 +477,7 @@ def estimate_n_density(density: float, avg_mass_amu: float) -> float:
     return density / (avg_mass_amu * AMU_TO_KG)
 
 
-def load_database(path: Union[str, Path]) -> List[Material]:
+def load_database(path: str | Path) -> list[Material]:
     """
     Load materials from a sound velocity database JSON file.
 
@@ -489,23 +507,23 @@ def load_database(path: Union[str, Path]) -> List[Material]:
 
     materials = []
 
-    for category, mats in db.get('materials', {}).items():
+    for category, mats in db.get("materials", {}).items():
         for name, data in mats.items():
-            sv = data.get('sound_velocities', {})
-            v_avg = sv.get('average_m_per_s')
-            density = data.get('density_kg_per_m3')
+            sv = data.get("sound_velocities", {})
+            v_avg = sv.get("average_m_per_s")
+            density = data.get("density_kg_per_m3")
 
             if v_avg is None or density is None:
                 continue
 
             # Build sound_velocity dict in MP format
             sound_velocity = {}
-            if sv.get('longitudinal_m_per_s'):
-                sound_velocity['longitudinal'] = sv['longitudinal_m_per_s']
-            if sv.get('transverse_m_per_s'):
-                sound_velocity['transverse'] = sv['transverse_m_per_s']
+            if sv.get("longitudinal_m_per_s"):
+                sound_velocity["longitudinal"] = sv["longitudinal_m_per_s"]
+            if sv.get("transverse_m_per_s"):
+                sound_velocity["transverse"] = sv["transverse_m_per_s"]
             if v_avg:
-                sound_velocity['average'] = v_avg
+                sound_velocity["average"] = v_avg
 
             # Get number density from avg mass if available
             avg_mass = _DEFAULT_AVG_MASSES.get(name)
@@ -515,32 +533,32 @@ def load_database(path: Union[str, Path]) -> List[Material]:
                 n_density = estimate_n_density(density, 30.0)
 
             # Elastic moduli
-            ec = data.get('elastic_constants', {})
-            em = data.get('elastic_moduli', {})
+            data.get("elastic_constants", {})
+            em = data.get("elastic_moduli", {})
             bulk_modulus = None
             shear_modulus = None
-            if em.get('bulk_modulus_GPa'):
-                bulk_modulus = {'vrh': em['bulk_modulus_GPa']}
-            if em.get('shear_modulus_GPa'):
-                shear_modulus = {'vrh': em['shear_modulus_GPa']}
+            if em.get("bulk_modulus_GPa"):
+                bulk_modulus = {"vrh": em["bulk_modulus_GPa"]}
+            if em.get("shear_modulus_GPa"):
+                shear_modulus = {"vrh": em["shear_modulus_GPa"]}
 
             # Sources
             sources = []
-            for src in data.get('sources', []):
+            for src in data.get("sources", []):
                 if isinstance(src, dict):
-                    sources.append(src.get('citation', ''))
+                    sources.append(src.get("citation", ""))
                 elif isinstance(src, str):
                     sources.append(src)
 
             mat = Material(
                 name=name,
-                formula=data.get('full_name', name),
+                formula=data.get("full_name", name),
                 density=density,
                 n_density=n_density,
                 sound_velocity=sound_velocity,
                 bulk_modulus=bulk_modulus,
                 shear_modulus=shear_modulus,
-                young_modulus=em.get('youngs_modulus_GPa'),
+                young_modulus=em.get("youngs_modulus_GPa"),
                 category=category,
                 sources=sources,
             )
@@ -549,8 +567,7 @@ def load_database(path: Union[str, Path]) -> List[Material]:
     return materials
 
 
-def fetch_mp(material_ids: List[str],
-             api_key: Optional[str] = None) -> List[Material]:
+def fetch_mp(material_ids: list[str], api_key: str | None = None) -> list[Material]:
     """
     Fetch materials from the Materials Project API.
 
@@ -575,15 +592,14 @@ def fetch_mp(material_ids: List[str],
     """
     try:
         from mp_api.client import MPRester
-    except ImportError:
+    except ImportError as exc:
         raise ImportError(
-            "mp-api is required for Materials Project queries. "
-            "Install with: pip install mp-api"
-        )
+            "mp-api is required for Materials Project queries. Install with: pip install mp-api"
+        ) from exc
 
     kwargs = {}
     if api_key:
-        kwargs['api_key'] = api_key
+        kwargs["api_key"] = api_key
 
     materials = []
     with MPRester(**kwargs) as mpr:
@@ -591,12 +607,22 @@ def fetch_mp(material_ids: List[str],
         docs = mpr.materials.elasticity.search(
             material_ids=material_ids,
             fields=[
-                "material_id", "formula_pretty", "density",
-                "density_atomic", "volume", "nsites", "elements",
-                "sound_velocity", "bulk_modulus", "shear_modulus",
-                "youngs_modulus", "homogeneous_poisson",
-                "universal_anisotropy", "debye_temperature",
-                "thermal_conductivity", "symmetry",
+                "material_id",
+                "formula_pretty",
+                "density",
+                "density_atomic",
+                "volume",
+                "nsites",
+                "elements",
+                "sound_velocity",
+                "bulk_modulus",
+                "shear_modulus",
+                "youngs_modulus",
+                "homogeneous_poisson",
+                "universal_anisotropy",
+                "debye_temperature",
+                "thermal_conductivity",
+                "symmetry",
             ],
         )
         for doc in docs:
@@ -605,8 +631,9 @@ def fetch_mp(material_ids: List[str],
     return materials
 
 
-def batch_cahill(materials: List[Material],
-                 T: Union[float, np.ndarray] = 300.0) -> Dict[str, Union[float, np.ndarray]]:
+def batch_cahill(
+    materials: list[Material], T: float | np.ndarray = 300.0
+) -> dict[str, float | np.ndarray]:
     """
     Compute Cahill minimum κ for a list of materials.
 

@@ -7,11 +7,9 @@ Translated from linear_fit_with_errors.m
 from __future__ import annotations
 
 import numpy as np
-from typing import Tuple
 
 
-def fit_with_errors(x: np.ndarray, y: np.ndarray, y_err: np.ndarray
-                    ) -> Tuple[float, float, float]:
+def fit_with_errors(x: np.ndarray, y: np.ndarray, y_err: np.ndarray) -> tuple[float, float, float]:
     """
     Weighted linear fit to data with measurement errors.
 

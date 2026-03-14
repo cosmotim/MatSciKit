@@ -8,18 +8,20 @@ Translated from plotExportInsetStyle.m
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
-from pathlib import Path
-from typing import Optional, Union
 
 
-def export_inset_figure(fig: Optional[Figure] = None,
-                        filename: Union[str, Path] = 'figure_inset',
-                        format: str = 'tiff',
-                        dpi: int = 600,
-                        width: float = 2.0,
-                        height: float = 1.5) -> None:
+def export_inset_figure(
+    fig: Figure | None = None,
+    filename: str | Path = "figure_inset",
+    format: str = "tiff",
+    dpi: int = 600,
+    width: float = 2.0,
+    height: float = 1.5,
+) -> None:
     """
     Export a matplotlib figure with inset-style formatting.
 
@@ -51,48 +53,47 @@ def export_inset_figure(fig: Optional[Figure] = None,
             spine.set_linewidth(1.0)
 
         ax.tick_params(
-            which='both',
-            direction='in',
-            length=3,
-            width=1.0,
-            labelsize=9,
-            top=True,
-            right=True
+            which="both", direction="in", length=3, width=1.0, labelsize=9, top=True, right=True
         )
 
         ax.minorticks_off()
 
-        for item in ([ax.xaxis.label, ax.yaxis.label] +
-                     ax.get_xticklabels() + ax.get_yticklabels()):
+        all_labels = [
+            ax.xaxis.label,
+            ax.yaxis.label,
+            *ax.get_xticklabels(),
+            *ax.get_yticklabels(),
+        ]
+        for item in all_labels:
             item.set_fontsize(9)
-            item.set_fontname('Arial')
+            item.set_fontname("Arial")
 
         if ax.get_title():
             ax.title.set_fontsize(9)
-            ax.title.set_fontname('Arial')
+            ax.title.set_fontname("Arial")
 
         legend = ax.get_legend()
         if legend:
             for text in legend.get_texts():
                 text.set_fontsize(8)
-                text.set_fontname('Arial')
+                text.set_fontname("Arial")
 
-    fig.patch.set_facecolor('white')
+    fig.patch.set_facecolor("white")
     fig.set_size_inches(width, height)
     fig.tight_layout(pad=0.2)
 
     filename = Path(filename)
     if not filename.suffix:
-        filename = filename.with_suffix(f'.{format}')
+        filename = filename.with_suffix(f".{format}")
 
     fig.savefig(
         filename,
         dpi=dpi,
         format=format,
-        bbox_inches='tight',
-        facecolor='white',
-        edgecolor='none',
-        pad_inches=0.03
+        bbox_inches="tight",
+        facecolor="white",
+        edgecolor="none",
+        pad_inches=0.03,
     )
 
-    print(f'Figure exported as {filename}')
+    print(f"Figure exported as {filename}")
