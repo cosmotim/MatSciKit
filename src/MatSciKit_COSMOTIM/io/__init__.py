@@ -1,16 +1,35 @@
 """
 Instrument-specific data readers.
 
-Modules
--------
-ppms_tto : PPMS Thermal Transport Option reader
-ppms_hc : PPMS Heat Capacity reader
-dsc : Differential Scanning Calorimetry reader
-lfa : Laser Flash Analysis reader
+Function-based readers (quick use):
+    ``ppms_hc.read()``, ``ppms_tto.read()``, ``dsc.read()``, ``lfa.read()``
+
+Class-based readers (metadata + caching):
+    ``PPMSHCReader``, ``PPMSTTOReader``, ``DSCReader``, ``LFAReader``,
+    ``auto_reader()``
 """
 
 from __future__ import annotations
 
 from . import dsc, lfa, ppms_hc, ppms_tto
+from .readers import (
+    BaseReader,
+    DSCReader,
+    LFAReader,
+    PPMSHCReader,
+    PPMSTTOReader,
+    auto_reader,
+)
 
-__all__ = ["dsc", "lfa", "ppms_hc", "ppms_tto"]
+__all__ = [
+    "BaseReader",
+    "DSCReader",
+    "LFAReader",
+    "PPMSHCReader",
+    "PPMSTTOReader",
+    "auto_reader",
+    "dsc",
+    "lfa",
+    "ppms_hc",
+    "ppms_tto",
+]
