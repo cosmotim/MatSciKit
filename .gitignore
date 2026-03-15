@@ -14,3 +14,9 @@ build/
 
 # Data
 ExampleData/
+
+# Agent prompts / build tasks (not for public repos)
+TASK.md
+PROMPT.md
+.cursor/
+.claude/
