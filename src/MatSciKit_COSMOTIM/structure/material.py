@@ -147,6 +147,68 @@ class Material:
     elements: list[str] | None = None
     sources: list[str] = field(default_factory=list)
 
+    def as_dict(self) -> dict[str, Any]:
+        """Serialize to a JSON-compatible dictionary.
+
+        Returns
+        -------
+        data : dict
+            Dictionary representation of the Material.
+        """
+        from dataclasses import asdict
+
+        d = asdict(self)
+        d["__class__"] = "Material"
+        d["__version__"] = "0.2.0"
+        return d
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> Material:
+        """Reconstruct a Material from a dictionary.
+
+        Parameters
+        ----------
+        d : dict
+            Dictionary as produced by :meth:`as_dict`.
+
+        Returns
+        -------
+        material : Material
+            Reconstructed Material instance.
+        """
+        d = dict(d)  # shallow copy
+        d.pop("__class__", None)
+        d.pop("__version__", None)
+        return cls(**d)
+
+    def to_json(self, path: str | Path) -> None:
+        """Write Material to a JSON file.
+
+        Parameters
+        ----------
+        path : str or Path
+            Output file path.
+        """
+        with open(Path(path), "w") as f:
+            json.dump(self.as_dict(), f, indent=2, default=str)
+
+    @classmethod
+    def from_json(cls, path: str | Path) -> Material:
+        """Load a Material from a JSON file.
+
+        Parameters
+        ----------
+        path : str or Path
+            Input file path.
+
+        Returns
+        -------
+        material : Material
+            Loaded Material instance.
+        """
+        with open(Path(path)) as f:
+            return cls.from_dict(json.load(f))
+
     def __post_init__(self):
         # Derive n_density from density_atomic if available
         if self.n_density == 0 and self.density_atomic is not None:

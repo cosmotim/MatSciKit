@@ -10,13 +10,11 @@ import tempfile
 import textwrap
 from pathlib import Path
 
-import numpy as np
 import pytest
 
-sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from MatSciKit_COSMOTIM.structure import cif_reader
-
 
 # ---- Test CIF content ----
 
@@ -121,7 +119,7 @@ NO_OCC_CIF = textwrap.dedent("""\
 
 def _write_temp_cif(content: str) -> str:
     """Write CIF content to a temp file and return the path."""
-    f = tempfile.NamedTemporaryFile(mode='w', suffix='.cif', delete=False)
+    f = tempfile.NamedTemporaryFile(mode="w", suffix=".cif", delete=False)
     f.write(content)
     f.close()
     return f.name
@@ -135,22 +133,22 @@ class TestCIFReaderBasicParser:
         path = _write_temp_cif(SRTIO3_CIF)
         result = cif_reader.read(path, use_pymatgen=False)
 
-        assert result['unit_cell']['a'] == pytest.approx(3.905)
-        assert result['unit_cell']['b'] == pytest.approx(3.905)
-        assert result['unit_cell']['c'] == pytest.approx(3.905)
-        assert result['volume'] == pytest.approx(59.55)
+        assert result["unit_cell"]["a"] == pytest.approx(3.905)
+        assert result["unit_cell"]["b"] == pytest.approx(3.905)
+        assert result["unit_cell"]["c"] == pytest.approx(3.905)
+        assert result["volume"] == pytest.approx(59.55)
 
     def test_srtio3_atoms(self):
         """SrTiO3: 5 atoms (1 Sr + 1 Ti + 3 O)."""
         path = _write_temp_cif(SRTIO3_CIF)
         result = cif_reader.read(path, use_pymatgen=False)
 
-        assert result['total_atoms'] == pytest.approx(5.0)
+        assert result["total_atoms"] == pytest.approx(5.0)
 
-        symbols = [a['symbol'] for a in result['atoms']]
-        assert symbols.count('Sr') == 1
-        assert symbols.count('Ti') == 1
-        assert symbols.count('O') == 3
+        symbols = [a["symbol"] for a in result["atoms"]]
+        assert symbols.count("Sr") == 1
+        assert symbols.count("Ti") == 1
+        assert symbols.count("O") == 3
 
     def test_srtio3_density(self):
         """SrTiO3 density should be ~5100 kg/m³."""
@@ -158,8 +156,7 @@ class TestCIFReaderBasicParser:
         result = cif_reader.read(path, use_pymatgen=False)
 
         # Known: ρ(SrTiO3) ≈ 5110-5130 kg/m³
-        assert 4900 < result['density'] < 5300, \
-            f"SrTiO3 density = {result['density']:.0f} kg/m³"
+        assert 4900 < result["density"] < 5300, f"SrTiO3 density = {result['density']:.0f} kg/m³"
         print(f"SrTiO3 density: {result['density']:.0f} kg/m³")
 
     def test_srtio3_number_density(self):
@@ -168,7 +165,7 @@ class TestCIFReaderBasicParser:
         result = cif_reader.read(path, use_pymatgen=False)
 
         expected = 5.0 / (59.55e-30)
-        assert result['n_density'] == pytest.approx(expected, rel=0.01)
+        assert result["n_density"] == pytest.approx(expected, rel=0.01)
         print(f"SrTiO3 n_density: {result['n_density']:.2e} atoms/m³")
 
     def test_nacl_8_atoms(self):
@@ -176,12 +173,11 @@ class TestCIFReaderBasicParser:
         path = _write_temp_cif(NACL_CIF)
         result = cif_reader.read(path, use_pymatgen=False)
 
-        assert result['total_atoms'] == pytest.approx(8.0)
-        assert result['volume'] == pytest.approx(179.43)
+        assert result["total_atoms"] == pytest.approx(8.0)
+        assert result["volume"] == pytest.approx(179.43)
 
         # NaCl density ~ 2165 kg/m³
-        assert 2000 < result['density'] < 2300, \
-            f"NaCl density = {result['density']:.0f} kg/m³"
+        assert 2000 < result["density"] < 2300, f"NaCl density = {result['density']:.0f} kg/m³"
         print(f"NaCl density: {result['density']:.0f} kg/m³")
 
     def test_partial_occupancy(self):
@@ -191,7 +187,7 @@ class TestCIFReaderBasicParser:
 
         # 0.375 + 0.4375 + 0.25 + 0.75 + 1.0 + 1.0 + 1.0 = 4.8125
         expected_atoms = 0.375 + 0.4375 + 0.25 + 0.75 + 3.0
-        assert result['total_atoms'] == pytest.approx(expected_atoms)
+        assert result["total_atoms"] == pytest.approx(expected_atoms)
 
         print(f"LSHT-like total atoms: {result['total_atoms']:.4f}")
         print(f"LSHT-like density: {result['density']:.0f} kg/m³")
@@ -201,10 +197,10 @@ class TestCIFReaderBasicParser:
         path = _write_temp_cif(NO_OCC_CIF)
         result = cif_reader.read(path, use_pymatgen=False)
 
-        assert result['total_atoms'] == pytest.approx(2.0)
-        symbols = [a['symbol'] for a in result['atoms']]
-        assert 'Fe' in symbols
-        assert 'O' in symbols
+        assert result["total_atoms"] == pytest.approx(2.0)
+        symbols = [a["symbol"] for a in result["atoms"]]
+        assert "Fe" in symbols
+        assert "O" in symbols
 
     def test_volume_calculation(self):
         """Volume calculated from lattice params matches _cell_volume."""
@@ -213,7 +209,7 @@ class TestCIFReaderBasicParser:
 
         # Manually calculate cubic volume
         calc_vol = 3.905**3
-        assert result['volume'] == pytest.approx(59.55, abs=0.1)
+        assert result["volume"] == pytest.approx(59.55, abs=0.1)
         assert calc_vol == pytest.approx(59.55, abs=0.1)
 
     def test_get_material_params(self):
@@ -221,7 +217,7 @@ class TestCIFReaderBasicParser:
         path = _write_temp_cif(SRTIO3_CIF)
         V, rho, n = cif_reader.get_material_params(path, use_pymatgen=False)
 
-        assert V == pytest.approx(59.55e-30)
+        assert pytest.approx(59.55e-30) == V
         assert 4900 < rho < 5300
         assert n > 0
 
@@ -233,7 +229,7 @@ class TestCIFReaderBasicParser:
         """Verify parser field is set correctly."""
         path = _write_temp_cif(SRTIO3_CIF)
         result = cif_reader.read(path, use_pymatgen=False)
-        assert result['parser'] == 'basic'
+        assert result["parser"] == "basic"
 
 
 class TestCIFReaderIntegration:
@@ -244,7 +240,7 @@ class TestCIFReaderIntegration:
         from MatSciKit_COSMOTIM.heat_capacity import dulong_petit
 
         path = _write_temp_cif(PARTIAL_OCC_CIF)
-        V, rho, n = cif_reader.get_material_params(path, use_pymatgen=False)
+        _V, rho, n = cif_reader.get_material_params(path, use_pymatgen=False)
 
         # Dulong-Petit should work with CIF-derived params
         dp = dulong_petit.calculate(n, rho)
@@ -252,5 +248,5 @@ class TestCIFReaderIntegration:
         print(f"LSHT-like Dulong-Petit: {dp:.4f} J/(g·K)")
 
 
-if __name__ == '__main__':
-    pytest.main([__file__, '-v', '-s'])
+if __name__ == "__main__":
+    pytest.main([__file__, "-v", "-s"])

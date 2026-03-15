@@ -84,6 +84,9 @@ ignore = [
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
 
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D101", "SIM115"]
+
 [tool.ruff.lint.isort]
 known-first-party = ["MatSciKit_COSMOTIM"]
 
