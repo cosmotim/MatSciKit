@@ -20,6 +20,7 @@ from textual.widgets import (
     DirectoryTree,
     Footer,
     Header,
+    Input,
     Label,
     ProgressBar,
     Select,
@@ -436,7 +437,7 @@ class MainMenuScreen(Screen):
 
 
 class AnalysisScreen(Screen):
-    """Pipeline selection (placeholder for future expansion)."""
+    """Pipeline selection screen."""
 
     BINDINGS = [
         Binding("escape", "go_back", "Back"),
@@ -504,10 +505,335 @@ class AnalysisScreen(Screen):
         self.app.pop_screen()
 
     @on(Button.Pressed, "#btn-pipe1")
+    def open_pipe1(self) -> None:
+        self.app.push_screen(Pipeline1Screen())
+
     @on(Button.Pressed, "#btn-pipe2")
+    def open_pipe2(self) -> None:
+        self.app.push_screen(Pipeline2Screen())
+
     @on(Button.Pressed, "#btn-pipe3")
-    def pipeline_pressed(self, event: Button.Pressed) -> None:
-        self.notify("Pipeline analysis — coming soon!", severity="information")
+    def open_pipe3(self) -> None:
+        self.app.push_screen(Pipeline3Screen())
+
+    def action_go_back(self) -> None:
+        self.app.pop_screen()
+
+
+# ===================================================================
+# Pipeline 1: Structure — Debye θ & Sound Velocities
+# ===================================================================
+
+
+class Pipeline1Screen(Screen):
+    """Low-temperature Cp fitting for Debye temperature."""
+
+    BINDINGS = [Binding("escape", "go_back", "Back")]
+
+    CSS = """
+    Pipeline1Screen {
+        background: $surface;
+    }
+    .param-row {
+        layout: horizontal;
+        height: 3;
+        margin: 0 1;
+    }
+    .param-label {
+        width: 24;
+        content-align: right middle;
+        padding-right: 1;
+        color: $text;
+    }
+    .param-input {
+        width: 1fr;
+    }
+    #results-box {
+        margin: 1 2;
+        padding: 1 2;
+        border: round $accent;
+        height: auto;
+    }
+    #run-btn {
+        margin: 1 2;
+        width: auto;
+    }
+    """
+
+    def compose(self) -> ComposeResult:
+
+        yield Header(show_clock=True)
+        yield Label("🔬 Pipeline 1: Debye Temperature from Low-T Cp", classes="section-title")
+        with Horizontal(classes="param-row"):
+            yield Label("n_density (atoms/m³):", classes="param-label")
+            yield Input(placeholder="e.g. 7.63e28", id="inp-ndensity", classes="param-input")
+        with Horizontal(classes="param-row"):
+            yield Label("Density (kg/m³):", classes="param-label")
+            yield Input(placeholder="e.g. 6870", id="inp-density", classes="param-input")
+        with Horizontal(classes="param-row"):
+            yield Label("T min (K):", classes="param-label")
+            yield Input(placeholder="3.0", id="inp-tmin", value="3.0", classes="param-input")
+        with Horizontal(classes="param-row"):
+            yield Label("T max (K):", classes="param-label")
+            yield Input(placeholder="10.0", id="inp-tmax", value="10.0", classes="param-input")
+        yield Button("▶ Run Analysis", id="run-btn", variant="primary")
+        yield Static("", id="results-box")
+        yield Footer()
+
+    @on(Button.Pressed, "#run-btn")
+    def run_analysis(self) -> None:
+
+        data = getattr(self.app, "loaded_data", None)
+        getattr(self.app, "loaded_format", None)
+        results = self.query_one("#results-box", Static)
+
+        if data is None:
+            results.update("❌ No data loaded. Load Cp data first.")
+            return
+
+        try:
+            n_density = float(self.query_one("#inp-ndensity", Input).value)
+            density = float(self.query_one("#inp-density", Input).value)
+            t_min = float(self.query_one("#inp-tmin", Input).value)
+            t_max = float(self.query_one("#inp-tmax", Input).value)
+        except ValueError:
+            results.update("❌ Please fill in all parameters with valid numbers.")
+            return
+
+        try:
+            from MatSciKit_COSMOTIM.heat_capacity import low_t_fitting
+
+            T, Cp, Cp_err = data[:, 0], data[:, 1], data[:, 2]
+            theta_D, v_s, theta_D_err, v_s_err = low_t_fitting.fit(
+                T, Cp, Cp_err, n_density, density, t_range=(t_min, t_max)
+            )
+            results.update(
+                "✅ Pipeline 1 Results\n"
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"  Debye temperature:  θ_D = {theta_D:.2f} ± {theta_D_err:.2f} K\n"
+                f"  Sound velocity:     v_s = {v_s:.2f} ± {v_s_err:.2f} m/s\n"
+                f"  Fitting range:      {t_min:.1f} – {t_max:.1f} K"
+            )
+        except Exception as exc:
+            results.update(f"❌ Error: {exc}")
+
+    def action_go_back(self) -> None:
+        self.app.pop_screen()
+
+
+# ===================================================================
+# Pipeline 2: Heat Capacity — Dulong-Petit, Debye Model
+# ===================================================================
+
+
+class Pipeline2Screen(Screen):
+    """Heat capacity analysis: Dulong-Petit limit and Debye model."""
+
+    BINDINGS = [Binding("escape", "go_back", "Back")]
+
+    CSS = """
+    Pipeline2Screen {
+        background: $surface;
+    }
+    .param-row {
+        layout: horizontal;
+        height: 3;
+        margin: 0 1;
+    }
+    .param-label {
+        width: 24;
+        content-align: right middle;
+        padding-right: 1;
+        color: $text;
+    }
+    .param-input {
+        width: 1fr;
+    }
+    #results-box {
+        margin: 1 2;
+        padding: 1 2;
+        border: round $accent;
+        height: auto;
+    }
+    #run-btn {
+        margin: 1 2;
+        width: auto;
+    }
+    """
+
+    def compose(self) -> ComposeResult:
+
+        yield Header(show_clock=True)
+        yield Label("🔬 Pipeline 2: Heat Capacity Analysis", classes="section-title")
+        with Horizontal(classes="param-row"):
+            yield Label("n_density (atoms/m³):", classes="param-label")
+            yield Input(placeholder="e.g. 7.63e28", id="inp-ndensity", classes="param-input")
+        with Horizontal(classes="param-row"):
+            yield Label("Density (kg/m³):", classes="param-label")
+            yield Input(placeholder="e.g. 6870", id="inp-density", classes="param-input")
+        with Horizontal(classes="param-row"):
+            yield Label("Sound velocity (m/s):", classes="param-label")
+            yield Input(placeholder="e.g. 2841 (optional)", id="inp-vs", classes="param-input")
+        yield Button("▶ Run Analysis", id="run-btn", variant="primary")
+        yield Static("", id="results-box")
+        yield Footer()
+
+    @on(Button.Pressed, "#run-btn")
+    def run_analysis(self) -> None:
+
+        results = self.query_one("#results-box", Static)
+
+        try:
+            n_density = float(self.query_one("#inp-ndensity", Input).value)
+            density = float(self.query_one("#inp-density", Input).value)
+        except ValueError:
+            results.update("❌ Please provide n_density and density.")
+            return
+
+        try:
+            from MatSciKit_COSMOTIM.heat_capacity import debye, dulong_petit
+
+            dp = dulong_petit.calculate(n_density, density)
+
+            lines = [
+                "✅ Pipeline 2 Results",
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+                f"  Dulong-Petit limit:  {dp:.4f} J/(g·K)",
+            ]
+
+            vs_str = self.query_one("#inp-vs", Input).value.strip()
+            if vs_str:
+                v_s = float(vs_str)
+                theta_D = debye.from_velocity(v_s, n_density)
+                lines.append(f"  Debye θ from v_s:    {theta_D:.2f} K")
+
+            results.update("\n".join(lines))
+        except Exception as exc:
+            results.update(f"❌ Error: {exc}")
+
+    def action_go_back(self) -> None:
+        self.app.pop_screen()
+
+
+# ===================================================================
+# Pipeline 3: Thermal Conductivity — κ_min, MFP
+# ===================================================================
+
+
+class Pipeline3Screen(Screen):
+    """Thermal conductivity analysis: κ_min and mean free path."""
+
+    BINDINGS = [Binding("escape", "go_back", "Back")]
+
+    CSS = """
+    Pipeline3Screen {
+        background: $surface;
+    }
+    .param-row {
+        layout: horizontal;
+        height: 3;
+        margin: 0 1;
+    }
+    .param-label {
+        width: 24;
+        content-align: right middle;
+        padding-right: 1;
+        color: $text;
+    }
+    .param-input {
+        width: 1fr;
+    }
+    #results-box {
+        margin: 1 2;
+        padding: 1 2;
+        border: round $accent;
+        height: auto;
+    }
+    #run-btn {
+        margin: 1 2;
+        width: auto;
+    }
+    """
+
+    def compose(self) -> ComposeResult:
+
+        yield Header(show_clock=True)
+        yield Label(
+            "🔬 Pipeline 3: Thermal Conductivity Analysis",
+            classes="section-title",
+        )
+        with Horizontal(classes="param-row"):
+            yield Label("n_density (atoms/m³):", classes="param-label")
+            yield Input(placeholder="e.g. 7.63e28", id="inp-ndensity", classes="param-input")
+        with Horizontal(classes="param-row"):
+            yield Label("Debye θ (K):", classes="param-label")
+            yield Input(placeholder="e.g. 312.4", id="inp-thetad", classes="param-input")
+        with Horizontal(classes="param-row"):
+            yield Label("Sound velocity (m/s):", classes="param-label")
+            yield Input(placeholder="e.g. 2841", id="inp-vs", classes="param-input")
+        with Horizontal(classes="param-row"):
+            yield Label("T for κ_min (K):", classes="param-label")
+            yield Input(placeholder="e.g. 300", id="inp-temp", value="300", classes="param-input")
+        with Horizontal(classes="param-row"):
+            yield Label("Porosity (0-1):", classes="param-label")
+            yield Input(
+                placeholder="e.g. 0.03", id="inp-porosity", value="0.0", classes="param-input"
+            )
+        yield Button("▶ Run Analysis", id="run-btn", variant="primary")
+        yield Static("", id="results-box")
+        yield Footer()
+
+    @on(Button.Pressed, "#run-btn")
+    def run_analysis(self) -> None:
+
+        results = self.query_one("#results-box", Static)
+
+        try:
+            n_density = float(self.query_one("#inp-ndensity", Input).value)
+            theta_D = float(self.query_one("#inp-thetad", Input).value)
+            v_s = float(self.query_one("#inp-vs", Input).value)
+            T = float(self.query_one("#inp-temp", Input).value)
+            porosity = float(self.query_one("#inp-porosity", Input).value)
+        except ValueError:
+            results.update("❌ Please fill in all parameters.")
+            return
+
+        try:
+            from MatSciKit_COSMOTIM.thermal_conductivity import (
+                cahill,
+                mean_free_path,
+                porosity_correction,
+            )
+
+            kappa_min = cahill.minimum_tc(T, n_density, theta_D, v_s)
+
+            lines = [
+                "✅ Pipeline 3 Results",
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+                f"  κ_min at {T:.0f} K:    {kappa_min:.4f} W/(m·K)",
+            ]
+
+            if porosity > 0:
+                kappa_corrected = porosity_correction.correct(kappa_min, porosity)
+                lines.append(f"  κ (porosity={porosity:.2f}): {kappa_corrected:.4f} W/(m·K)")
+
+            # If TTO data is loaded, compute MFP
+            data = getattr(self.app, "loaded_data", None)
+            fmt = getattr(self.app, "loaded_format", None)
+            if data is not None and fmt == "ppms_tto":
+                mfp = mean_free_path.calculate(data[:, 0], data[:, 1], theta_D, v_s)
+                mfp_nm = mfp * 1e9
+                lines.extend(
+                    [
+                        "",
+                        "  Mean free path (from loaded TTO data):",
+                        f"    Min: {np.nanmin(mfp_nm):.1f} nm  Max: {np.nanmax(mfp_nm):.1f} nm",
+                    ]
+                )
+
+            results.update("\n".join(lines))
+        except Exception as exc:
+            results.update(f"❌ Error: {exc}")
 
     def action_go_back(self) -> None:
         self.app.pop_screen()
