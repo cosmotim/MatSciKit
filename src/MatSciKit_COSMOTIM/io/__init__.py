@@ -11,7 +11,7 @@ Class-based readers (metadata + caching):
 
 from __future__ import annotations
 
-from . import dsc, lfa, ppms_hc, ppms_tto
+from . import dsc, lfa, lfa_excel, ppms_hc, ppms_tto
 from .readers import (
     BaseReader,
     DSCReader,
@@ -30,6 +30,7 @@ __all__ = [
     "auto_reader",
     "dsc",
     "lfa",
+    "lfa_excel",
     "ppms_hc",
     "ppms_tto",
 ]

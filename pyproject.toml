@@ -45,6 +45,9 @@ matscikit = "MatSciKit_COSMOTIM.tui.app:main"
 tui = [
     "textual>=0.40.0",
 ]
+excel = [
+    "openpyxl>=3.0.0",
+]
 dev = [
     "pytest",
     "pytest-cov",
