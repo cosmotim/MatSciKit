@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "MatSciKit-COSMOTIM"
-version = "0.2.1"
+version = "0.2.2"
 description = "Python toolkit for materials science thermal property analysis"
 readme = "README.md"
 requires-python = ">=3.8"
-license = "MIT"
+license = {text = "MIT"}
 authors = [
     {name = "Yitian Wang", email = "ywang1057@ucr.edu"}
 ]
