@@ -209,6 +209,38 @@ Features:
 - Loading progress and data preview
 - Pipeline analysis selection
 
+## Troubleshooting
+
+### scipy fails to install on Windows (compiler error)
+
+If you see an error like:
+```
+ERROR: Unknown compiler(s): [['icl'], ['cl'], ['cc'], ['gcc'], ['clang'], ...]
+```
+
+This means pip is trying to build scipy from source instead of using a pre-built wheel. The most common cause is a **32-bit Python installation** — scipy only provides wheels for 64-bit Python on Windows.
+
+**Fix:**
+
+1. Check if you have 64-bit Python:
+   ```
+   python -c "import struct; print(struct.calcsize('P') * 8)"
+   ```
+   If it prints `32`, you need to reinstall Python.
+
+2. Download **64-bit Python** from [python.org](https://www.python.org/downloads/) — make sure to select **"Windows installer (64-bit)"**.
+
+3. Reinstall and verify it prints `64`, then:
+   ```
+   pip install MatSciKit-COSMOTIM
+   ```
+
+**Alternative (conda):**
+```bash
+conda install numpy scipy matplotlib
+pip install MatSciKit-COSMOTIM
+```
+
 ## Running Tests
 
 ```bash
